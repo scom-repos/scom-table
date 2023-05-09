@@ -67,7 +67,7 @@ declare module "@scom/scom-table/assets.ts" {
 /// <amd-module name="@scom/scom-table" />
 declare module "@scom/scom-table" {
     import { Module, ControlElement, Container, IDataSchema } from '@ijstech/components';
-    import { PageBlock, ITableConfig } from "@scom/scom-table/global/index.ts";
+    import { ITableConfig } from "@scom/scom-table/global/index.ts";
     interface ScomTableElement extends ControlElement {
         data: ITableConfig;
     }
@@ -78,7 +78,7 @@ declare module "@scom/scom-table" {
             }
         }
     }
-    export default class ScomTable extends Module implements PageBlock {
+    export default class ScomTable extends Module {
         private vStackTable;
         private vStackInfo;
         private hStackFooter;
@@ -106,147 +106,64 @@ declare module "@scom/scom-table" {
         readonly onEdit: () => Promise<void>;
         static create(options?: ScomTableElement, parent?: Container): Promise<ScomTable>;
         constructor(parent?: Container, options?: ScomTableElement);
-        getData(): ITableConfig;
-        setData(data: ITableConfig): Promise<void>;
-        getTag(): any;
-        setTag(value: any): Promise<void>;
-        getConfigSchema(): IDataSchema;
-        onConfigSave(config: any): void;
-        edit(): Promise<void>;
-        confirm(): Promise<void>;
-        discard(): Promise<void>;
-        config(): Promise<void>;
+        private getData;
+        private setData;
+        private getTag;
+        private setTag;
         private getPropertiesSchema;
         private getThemeSchema;
-        getEmbedderActions(): ({
+        private _getActions;
+        getConfigurators(): {
             name: string;
-            icon: string;
-            command: (builder: any, userInputData: any) => {
-                execute: () => Promise<void>;
-                undo: () => void;
-                redo: () => void;
-            };
-            userInputDataSchema: IDataSchema;
-            userInputUISchema: {
-                type: string;
-                elements: ({
+            target: string;
+            getActions: () => ({
+                name: string;
+                icon: string;
+                command: (builder: any, userInputData: any) => {
+                    execute: () => Promise<void>;
+                    undo: () => void;
+                    redo: () => void;
+                };
+                userInputDataSchema: IDataSchema;
+                userInputUISchema: {
                     type: string;
-                    scope: string;
-                    title: string;
-                    options?: undefined;
-                } | {
-                    type: string;
-                    scope: string;
-                    title?: undefined;
-                    options?: undefined;
-                } | {
-                    type: string;
-                    scope: string;
-                    options: {
-                        detail: {
-                            type: string;
+                    elements: ({
+                        type: string;
+                        scope: string;
+                        title: string;
+                        options?: undefined;
+                    } | {
+                        type: string;
+                        scope: string;
+                        title?: undefined;
+                        options?: undefined;
+                    } | {
+                        type: string;
+                        scope: string;
+                        options: {
+                            detail: {
+                                type: string;
+                            };
                         };
-                    };
-                    title?: undefined;
-                })[];
-            };
-        } | {
-            name: string;
-            icon: string;
-            command: (builder: any, userInputData: any) => {
-                execute: () => Promise<void>;
-                undo: () => void;
-                redo: () => void;
-            };
-            userInputDataSchema: IDataSchema;
-            userInputUISchema?: undefined;
-        })[];
-        getActions(): ({
-            name: string;
-            icon: string;
-            command: (builder: any, userInputData: any) => {
-                execute: () => Promise<void>;
-                undo: () => void;
-                redo: () => void;
-            };
-            userInputDataSchema: IDataSchema;
-            userInputUISchema: {
-                type: string;
-                elements: ({
-                    type: string;
-                    scope: string;
-                    title: string;
-                    options?: undefined;
-                } | {
-                    type: string;
-                    scope: string;
-                    title?: undefined;
-                    options?: undefined;
-                } | {
-                    type: string;
-                    scope: string;
-                    options: {
-                        detail: {
-                            type: string;
-                        };
-                    };
-                    title?: undefined;
-                })[];
-            };
-        } | {
-            name: string;
-            icon: string;
-            command: (builder: any, userInputData: any) => {
-                execute: () => Promise<void>;
-                undo: () => void;
-                redo: () => void;
-            };
-            userInputDataSchema: IDataSchema;
-            userInputUISchema?: undefined;
-        })[];
-        _getActions(propertiesSchema: IDataSchema, themeSchema: IDataSchema): ({
-            name: string;
-            icon: string;
-            command: (builder: any, userInputData: any) => {
-                execute: () => Promise<void>;
-                undo: () => void;
-                redo: () => void;
-            };
-            userInputDataSchema: IDataSchema;
-            userInputUISchema: {
-                type: string;
-                elements: ({
-                    type: string;
-                    scope: string;
-                    title: string;
-                    options?: undefined;
-                } | {
-                    type: string;
-                    scope: string;
-                    title?: undefined;
-                    options?: undefined;
-                } | {
-                    type: string;
-                    scope: string;
-                    options: {
-                        detail: {
-                            type: string;
-                        };
-                    };
-                    title?: undefined;
-                })[];
-            };
-        } | {
-            name: string;
-            icon: string;
-            command: (builder: any, userInputData: any) => {
-                execute: () => Promise<void>;
-                undo: () => void;
-                redo: () => void;
-            };
-            userInputDataSchema: IDataSchema;
-            userInputUISchema?: undefined;
-        })[];
+                        title?: undefined;
+                    })[];
+                };
+            } | {
+                name: string;
+                icon: string;
+                command: (builder: any, userInputData: any) => {
+                    execute: () => Promise<void>;
+                    undo: () => void;
+                    redo: () => void;
+                };
+                userInputDataSchema: IDataSchema;
+                userInputUISchema?: undefined;
+            })[];
+            getData: any;
+            setData: any;
+            getTag: any;
+            setTag: any;
+        }[];
         private get dataListFiltered();
         private get dataListPagination();
         private updateStyle;

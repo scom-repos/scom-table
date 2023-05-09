@@ -229,29 +229,34 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
             return this.tag;
         }
         async setTag(value) {
-            this.tag = value || {};
+            const newValue = value || {};
+            for (let prop in newValue) {
+                if (newValue.hasOwnProperty(prop)) {
+                    this.tag[prop] = newValue[prop];
+                }
+            }
             this.width = this.tag.width || 700;
             this.height = this.tag.height || 500;
             this.onUpdateBlock();
         }
-        getConfigSchema() {
-            return this.getThemeSchema();
-        }
-        onConfigSave(config) {
-            this.tag = config;
-            this.onUpdateBlock();
-        }
-        async edit() {
-            // this.vStackTable.visible = false
-        }
-        async confirm() {
-            this.onUpdateBlock();
-            // this.vStackTable.visible = true
-        }
-        async discard() {
-            // this.vStackTable.visible = true
-        }
-        async config() { }
+        // getConfigSchema() {
+        //   return this.getThemeSchema();
+        // }
+        // onConfigSave(config: any) {
+        //   this.tag = config;
+        //   this.onUpdateBlock();
+        // }
+        // async edit() {
+        //   // this.vStackTable.visible = false
+        // }
+        // async confirm() {
+        //   this.onUpdateBlock();
+        //   // this.vStackTable.visible = true
+        // }
+        // async discard() {
+        //   // this.vStackTable.visible = true
+        // }
+        // async config() { }
         getPropertiesSchema(readOnly) {
             const propertiesSchema = {
                 type: 'object',
@@ -359,12 +364,6 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
             };
             return themeSchema;
         }
-        getEmbedderActions() {
-            return this._getActions(this.getPropertiesSchema(true), this.getThemeSchema(true));
-        }
-        getActions() {
-            return this._getActions(this.getPropertiesSchema(), this.getThemeSchema());
-        }
         _getActions(propertiesSchema, themeSchema) {
             const actions = [
                 {
@@ -424,7 +423,7 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
                             execute: async () => {
                                 if (!userInputData)
                                     return;
-                                this.oldTag = Object.assign({}, this.tag);
+                                this.oldTag = JSON.parse(JSON.stringify(this.tag));
                                 this.setTag(userInputData);
                                 if (builder)
                                     builder.setTag(userInputData);
@@ -443,6 +442,32 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
                 }
             ];
             return actions;
+        }
+        getConfigurators() {
+            return [
+                {
+                    name: 'Builder Configurator',
+                    target: 'Builders',
+                    getActions: () => {
+                        return this._getActions(this.getPropertiesSchema(), this.getThemeSchema());
+                    },
+                    getData: this.getData.bind(this),
+                    setData: this.setData.bind(this),
+                    getTag: this.getTag.bind(this),
+                    setTag: this.setTag.bind(this)
+                },
+                {
+                    name: 'Emdedder Configurator',
+                    target: 'Embedders',
+                    getActions: () => {
+                        return this._getActions(this.getPropertiesSchema(true), this.getThemeSchema(true));
+                    },
+                    getData: this.getData.bind(this),
+                    setData: this.setData.bind(this),
+                    getTag: this.getTag.bind(this),
+                    setTag: this.setTag.bind(this)
+                }
+            ];
         }
         get dataListFiltered() {
             var _a, _b, _c;
@@ -508,10 +533,10 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
             this.onUpdateBlock();
         }
         renderTable(resize) {
-            var _a;
-            if (!this.tableElm && this._data.options)
+            var _a, _b, _c;
+            if (!this.tableElm && ((_a = this._data) === null || _a === void 0 ? void 0 : _a.options))
                 return;
-            const { title, description, columns } = this._data.options;
+            const { title, description, columns } = ((_b = this._data) === null || _b === void 0 ? void 0 : _b.options) || {};
             this.lbTitle.caption = title;
             this.lbDescription.caption = description;
             this.lbDescription.visible = !!description;
@@ -533,7 +558,7 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
                         }, 0);
                     }
                     const col = {
-                        title: title || ((_a = columns[name]) === null || _a === void 0 ? void 0 : _a.title) || name,
+                        title: title || ((_c = columns[name]) === null || _c === void 0 ? void 0 : _c.title) || name,
                         fieldName: name,
                         textAlign: alignContent,
                         onRenderCell: function (source, data, rowData) {
