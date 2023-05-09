@@ -17,7 +17,7 @@ import {
   Input,
   observable
 } from '@ijstech/components';
-import { PageBlock, ITableConfig, formatNumberWithSeparators, callAPI, formatNumberByFormat } from './global/index';
+import { ITableConfig, formatNumberWithSeparators, callAPI, formatNumberByFormat } from './global/index';
 import { containerStyle, tableStyle } from './index.css';
 import assets from './assets';
 const Theme = Styles.Theme.ThemeVars;
@@ -38,7 +38,7 @@ declare global {
 
 @customModule
 @customElements('i-scom-table')
-export default class ScomTable extends Module implements PageBlock {
+export default class ScomTable extends Module {
   private vStackTable: VStack;
   private vStackInfo: HStack;
   private hStackFooter: HStack;
@@ -78,50 +78,55 @@ export default class ScomTable extends Module implements PageBlock {
     super(parent, options);
   }
 
-  getData() {
+  private getData() {
     return this._data;
   }
 
-  async setData(data: ITableConfig) {
+  private async setData(data: ITableConfig) {
     this._oldData = this._data;
     this._data = data;
     this.updateTableData();
   }
 
-  getTag() {
+  private getTag() {
     return this.tag;
   }
 
-  async setTag(value: any) {
-    this.tag = value || {};
+  private async setTag(value: any) {
+    const newValue = value || {};
+    for (let prop in newValue) {
+      if (newValue.hasOwnProperty(prop)) {
+        this.tag[prop] = newValue[prop];
+      }
+    }
     this.width = this.tag.width || 700;
     this.height = this.tag.height || 500;
     this.onUpdateBlock();
   }
 
-  getConfigSchema() {
-    return this.getThemeSchema();
-  }
+  // getConfigSchema() {
+  //   return this.getThemeSchema();
+  // }
 
-  onConfigSave(config: any) {
-    this.tag = config;
-    this.onUpdateBlock();
-  }
+  // onConfigSave(config: any) {
+  //   this.tag = config;
+  //   this.onUpdateBlock();
+  // }
 
-  async edit() {
-    // this.vStackTable.visible = false
-  }
+  // async edit() {
+  //   // this.vStackTable.visible = false
+  // }
 
-  async confirm() {
-    this.onUpdateBlock();
-    // this.vStackTable.visible = true
-  }
+  // async confirm() {
+  //   this.onUpdateBlock();
+  //   // this.vStackTable.visible = true
+  // }
 
-  async discard() {
-    // this.vStackTable.visible = true
-  }
+  // async discard() {
+  //   // this.vStackTable.visible = true
+  // }
 
-  async config() { }
+  // async config() { }
 
   private getPropertiesSchema(readOnly?: boolean) {
     const propertiesSchema = {
@@ -183,7 +188,7 @@ export default class ScomTable extends Module implements PageBlock {
         }
       }
     }
-    return propertiesSchema as IDataSchema;
+    return propertiesSchema as any;
   }
 
   private getThemeSchema(readOnly?: boolean) {
@@ -232,15 +237,7 @@ export default class ScomTable extends Module implements PageBlock {
     return themeSchema as IDataSchema;
   }
 
-  getEmbedderActions() {
-    return this._getActions(this.getPropertiesSchema(true), this.getThemeSchema(true));
-  }
-
-  getActions() {
-    return this._getActions(this.getPropertiesSchema(), this.getThemeSchema());
-  }
-
-  _getActions(propertiesSchema: IDataSchema, themeSchema: IDataSchema) {
+  private _getActions(propertiesSchema: IDataSchema, themeSchema: IDataSchema) {
     const actions = [
       {
         name: 'Settings',
@@ -298,7 +295,7 @@ export default class ScomTable extends Module implements PageBlock {
           return {
             execute: async () => {
               if (!userInputData) return;
-              this.oldTag = { ...this.tag };
+              this.oldTag = JSON.parse(JSON.stringify(this.tag));
               this.setTag(userInputData);
               if (builder) builder.setTag(userInputData);
             },
@@ -314,6 +311,33 @@ export default class ScomTable extends Module implements PageBlock {
       }
     ]
     return actions
+  }
+
+  getConfigurators() {
+    return [
+      {
+        name: 'Builder Configurator',
+        target: 'Builders',
+        getActions: () => {
+          return this._getActions(this.getPropertiesSchema(), this.getThemeSchema());
+        },
+        getData: this.getData.bind(this),
+        setData: this.setData.bind(this),
+        getTag: this.getTag.bind(this),
+        setTag: this.setTag.bind(this)
+      },
+      {
+        name: 'Emdedder Configurator',
+        target: 'Embedders',
+        getActions: () => {
+          return this._getActions(this.getPropertiesSchema(true), this.getThemeSchema(true))
+        },
+        getData: this.getData.bind(this),
+        setData: this.setData.bind(this),
+        getTag: this.getTag.bind(this),
+        setTag: this.setTag.bind(this)
+      }
+    ]
   }
 
   private get dataListFiltered() {
@@ -384,8 +408,8 @@ export default class ScomTable extends Module implements PageBlock {
   }
 
   private renderTable(resize?: boolean) {
-    if (!this.tableElm && this._data.options) return;
-    const { title, description, columns } = this._data.options;
+    if (!this.tableElm && this._data?.options) return;
+    const { title, description, columns } = this._data?.options || {};
     this.lbTitle.caption = title;
     this.lbDescription.caption = description;
     this.lbDescription.visible = !!description;
