@@ -64,6 +64,34 @@ declare module "@scom/scom-table/assets.ts" {
     };
     export default _default;
 }
+/// <amd-module name="@scom/scom-table/data.json.ts" />
+declare module "@scom/scom-table/data.json.ts" {
+    const _default_1: {
+        defaultBuilderData: {
+            apiEndpoint: string;
+            options: {
+                title: string;
+                columns: ({
+                    name: string;
+                    title: string;
+                    type?: undefined;
+                    numberFormat?: undefined;
+                } | {
+                    name: string;
+                    type: string;
+                    title: string;
+                    numberFormat: string;
+                } | {
+                    name: string;
+                    title: string;
+                    numberFormat: string;
+                    type?: undefined;
+                })[];
+            };
+        };
+    };
+    export default _default_1;
+}
 /// <amd-module name="@scom/scom-table" />
 declare module "@scom/scom-table" {
     import { Module, ControlElement, Container, IDataSchema } from '@ijstech/components';
@@ -96,9 +124,7 @@ declare module "@scom/scom-table" {
         private pageNumber;
         private itemStart;
         private itemEnd;
-        private _oldData;
         private _data;
-        private oldTag;
         tag: any;
         defaultEdit: boolean;
         readonly onConfirm: () => Promise<void>;
