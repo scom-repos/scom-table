@@ -259,7 +259,6 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
         }
         async setData(data) {
             this._data = data;
-            console.log('___________', data);
             this.updateTableData();
         }
         getTag() {

@@ -83,7 +83,6 @@ export default class ScomTable extends Module {
 
   private async setData(data: ITableConfig) {
     this._data = data;
-    console.log('___________', data)
     this.updateTableData();
   }
 
