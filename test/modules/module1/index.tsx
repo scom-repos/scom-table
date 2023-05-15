@@ -16,7 +16,7 @@ export default class Module1 extends Module {
             <i-scom-table
                 margin={{ left: 'auto', right: 'auto' }}
                 data={{
-                    apiEndpoint: 'https://api.dune.com/api/v1/query/2030664/results?api_key=324WhvsCHWCji2pkgtfa0JDqDu8j0FdD',
+                    apiEndpoint: "/dune/query/2030664",
                     options: {
                         title: 'Ethereum Beacon Chain Deposits Entity',
                         columns: [
