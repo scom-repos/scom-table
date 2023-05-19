@@ -310,6 +310,7 @@ export default class ScomTable extends Module {
   }
 
   getConfigurators() {
+    const self = this;
     return [
       {
         name: 'Builder Configurator',
@@ -330,6 +331,24 @@ export default class ScomTable extends Module {
         target: 'Embedders',
         getActions: () => {
           return this._getActions(this.getPropertiesSchema(true), this.getThemeSchema(true))
+        },
+        getLinkParams: () => {
+          const data = this._data || {};
+          return {
+            data: window.btoa(JSON.stringify(data))
+          }
+        },
+        setLinkParams: async (params: any) => {
+          if (params.data) {
+            const utf8String = decodeURIComponent(params.data);
+            const decodedString = window.atob(utf8String);
+            const newData = JSON.parse(decodedString);
+            let resultingData = {
+              ...self._data,
+              newData
+            };
+            await this.setData(resultingData);
+          }
         },
         getData: this.getData.bind(this),
         setData: this.setData.bind(this),
