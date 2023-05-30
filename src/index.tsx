@@ -367,7 +367,7 @@ export default class ScomTable extends Module {
     if (advancedSchema) {
       const advanced = {
         name: 'Advanced',
-        icon: 'cog',
+        icon: 'sliders-h',
         command: (builder: any, userInputData: any) => {
           let _oldData: ITableOptions = { columns: [] };
           return {

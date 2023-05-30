@@ -545,7 +545,7 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
             if (advancedSchema) {
                 const advanced = {
                     name: 'Advanced',
-                    icon: 'cog',
+                    icon: 'sliders-h',
                     command: (builder, userInputData) => {
                         let _oldData = { columns: [] };
                         return {
