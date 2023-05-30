@@ -17,8 +17,8 @@ export default class Module1 extends Module {
                 margin={{ left: 'auto', right: 'auto' }}
                 data={{
                     apiEndpoint: "/dune/query/2030664",
+                    title: 'Ethereum Beacon Chain Deposits Entity',
                     options: {
-                        title: 'Ethereum Beacon Chain Deposits Entity',
                         columns: [
                             {
                                 name: 'ranking',

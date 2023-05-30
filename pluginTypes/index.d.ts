@@ -1,8 +1,6 @@
 /// <amd-module name="@scom/scom-table/global/interfaces.ts" />
 declare module "@scom/scom-table/global/interfaces.ts" {
     export interface ITableOptions {
-        title: string;
-        description?: string;
         columns: {
             name: string;
             title?: string;
@@ -16,6 +14,8 @@ declare module "@scom/scom-table/global/interfaces.ts" {
     }
     export interface ITableConfig {
         apiEndpoint: string;
+        title: string;
+        description?: string;
         options: ITableOptions;
     }
 }
@@ -69,8 +69,8 @@ declare module "@scom/scom-table/data.json.ts" {
     const _default_1: {
         defaultBuilderData: {
             apiEndpoint: string;
+            title: string;
             options: {
-                title: string;
                 columns: ({
                     name: string;
                     title: string;
@@ -137,6 +137,8 @@ declare module "@scom/scom-table" {
         private getTag;
         private setTag;
         private getPropertiesSchema;
+        private getGeneralSchema;
+        private getAdvanceSchema;
         private getThemeSchema;
         private _getActions;
         getConfigurators(): ({

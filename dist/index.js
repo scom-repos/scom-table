@@ -199,8 +199,8 @@ define("@scom/scom-table/data.json.ts", ["require", "exports"], function (requir
     exports.default = {
         "defaultBuilderData": {
             "apiEndpoint": "/dune/query/2030664",
+            "title": "Ethereum Beacon Chain Deposits Entity",
             "options": {
-                "title": "Ethereum Beacon Chain Deposits Entity",
                 "columns": [
                     {
                         "name": "ranking",
@@ -236,6 +236,48 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
     Object.defineProperty(exports, "__esModule", { value: true });
     const Theme = components_3.Styles.Theme.ThemeVars;
     const pageSize = 25;
+    const options = {
+        type: 'object',
+        properties: {
+            columns: {
+                type: 'array',
+                required: true,
+                items: {
+                    type: 'object',
+                    properties: {
+                        name: {
+                            type: 'string',
+                            required: true
+                        },
+                        title: {
+                            type: 'string'
+                        },
+                        alignContent: {
+                            type: 'string',
+                            enum: [
+                                'left',
+                                'center',
+                                'right'
+                            ]
+                        },
+                        type: {
+                            type: 'string',
+                            enum: [
+                                'normal',
+                                'progressbar'
+                            ]
+                        },
+                        numberFormat: {
+                            type: 'string'
+                        },
+                        isHidden: {
+                            type: 'boolean'
+                        }
+                    }
+                }
+            }
+        }
+    };
     let ScomTable = class ScomTable extends components_3.Module {
         constructor(parent, options) {
             super(parent, options);
@@ -245,7 +287,7 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
             this.pageNumber = 0;
             this.itemStart = 0;
             this.itemEnd = pageSize;
-            this._data = { apiEndpoint: '', options: undefined };
+            this._data = { apiEndpoint: '', title: '', options: undefined };
             this.tag = {};
             this.defaultEdit = true;
         }
@@ -275,22 +317,7 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
             this.height = this.tag.height || 500;
             this.onUpdateBlock();
         }
-        // onConfigSave(config: any) {
-        //   this.tag = config;
-        //   this.onUpdateBlock();
-        // }
-        // async edit() {
-        //   // this.vStackTable.visible = false
-        // }
-        // async confirm() {
-        //   this.onUpdateBlock();
-        //   // this.vStackTable.visible = true
-        // }
-        // async discard() {
-        //   // this.vStackTable.visible = true
-        // }
-        // async config() { }
-        getPropertiesSchema(readOnly) {
+        getPropertiesSchema() {
             const propertiesSchema = {
                 type: 'object',
                 properties: {
@@ -299,16 +326,16 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
                         title: 'API Endpoint',
                         required: true
                     },
+                    title: {
+                        type: 'string',
+                        required: true
+                    },
+                    description: {
+                        type: 'string'
+                    },
                     options: {
                         type: 'object',
                         properties: {
-                            title: {
-                                type: 'string',
-                                required: true
-                            },
-                            description: {
-                                type: 'string'
-                            },
                             columns: {
                                 type: 'array',
                                 required: true,
@@ -352,7 +379,34 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
             };
             return propertiesSchema;
         }
-        getThemeSchema(readOnly) {
+        getGeneralSchema() {
+            const propertiesSchema = {
+                type: 'object',
+                required: ['apiEndpoint', 'title'],
+                properties: {
+                    apiEndpoint: {
+                        type: 'string'
+                    },
+                    title: {
+                        type: 'string'
+                    },
+                    description: {
+                        type: 'string'
+                    }
+                }
+            };
+            return propertiesSchema;
+        }
+        getAdvanceSchema() {
+            const propertiesSchema = {
+                type: 'object',
+                properties: {
+                    options
+                }
+            };
+            return propertiesSchema;
+        }
+        getThemeSchema() {
             const themeSchema = {
                 type: 'object',
                 properties: {
@@ -397,25 +451,31 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
             };
             return themeSchema;
         }
-        _getActions(propertiesSchema, themeSchema) {
+        _getActions(propertiesSchema, themeSchema, advancedSchema) {
             const actions = [
                 {
                     name: 'Settings',
                     icon: 'cog',
                     command: (builder, userInputData) => {
-                        let _oldData = { apiEndpoint: '', options: undefined };
+                        let _oldData = { apiEndpoint: '', title: '', options: undefined };
                         return {
                             execute: async () => {
                                 _oldData = Object.assign({}, this._data);
-                                if ((userInputData === null || userInputData === void 0 ? void 0 : userInputData.apiEndpoint) !== undefined)
-                                    this._data.apiEndpoint = userInputData.apiEndpoint;
-                                if ((userInputData === null || userInputData === void 0 ? void 0 : userInputData.options) !== undefined)
-                                    this._data.options = userInputData.options;
+                                if (userInputData) {
+                                    if (advancedSchema) {
+                                        this._data = Object.assign(Object.assign({}, this._data), userInputData);
+                                    }
+                                    else {
+                                        this._data = Object.assign({}, userInputData);
+                                    }
+                                }
                                 if (builder === null || builder === void 0 ? void 0 : builder.setData)
                                     builder.setData(this._data);
                                 this.setData(this._data);
                             },
                             undo: () => {
+                                if (advancedSchema)
+                                    _oldData = Object.assign(Object.assign({}, _oldData), { options: this._data.options });
                                 if (builder === null || builder === void 0 ? void 0 : builder.setData)
                                     builder.setData(_oldData);
                                 this.setData(_oldData);
@@ -424,7 +484,7 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
                         };
                     },
                     userInputDataSchema: propertiesSchema,
-                    userInputUISchema: {
+                    userInputUISchema: advancedSchema ? undefined : {
                         type: 'VerticalLayout',
                         elements: [
                             {
@@ -434,11 +494,11 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
                             },
                             {
                                 type: 'Control',
-                                scope: '#/properties/options/properties/title'
+                                scope: '#/properties/title'
                             },
                             {
                                 type: 'Control',
-                                scope: '#/properties/options/properties/description'
+                                scope: '#/properties/description'
                             },
                             {
                                 type: 'Control',
@@ -482,6 +542,49 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
                     userInputDataSchema: themeSchema
                 }
             ];
+            if (advancedSchema) {
+                const advanced = {
+                    name: 'Advanced',
+                    icon: 'sliders-h',
+                    command: (builder, userInputData) => {
+                        let _oldData = { columns: [] };
+                        return {
+                            execute: async () => {
+                                var _a;
+                                _oldData = Object.assign({}, (_a = this._data) === null || _a === void 0 ? void 0 : _a.options);
+                                if ((userInputData === null || userInputData === void 0 ? void 0 : userInputData.options) !== undefined)
+                                    this._data.options = userInputData.options;
+                                if (builder === null || builder === void 0 ? void 0 : builder.setData)
+                                    builder.setData(this._data);
+                                this.setData(this._data);
+                            },
+                            undo: () => {
+                                this._data.options = Object.assign({}, _oldData);
+                                if (builder === null || builder === void 0 ? void 0 : builder.setData)
+                                    builder.setData(this._data);
+                                this.setData(this._data);
+                            },
+                            redo: () => { }
+                        };
+                    },
+                    userInputDataSchema: advancedSchema,
+                    userInputUISchema: {
+                        type: 'VerticalLayout',
+                        elements: [
+                            {
+                                type: 'Control',
+                                scope: '#/properties/options/properties/columns',
+                                options: {
+                                    detail: {
+                                        type: 'VerticalLayout'
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                };
+                actions.push(advanced);
+            }
             return actions;
         }
         getConfigurators() {
@@ -491,7 +594,7 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
                     name: 'Builder Configurator',
                     target: 'Builders',
                     getActions: () => {
-                        return this._getActions(this.getPropertiesSchema(), this.getThemeSchema());
+                        return this._getActions(this.getGeneralSchema(), this.getThemeSchema(), this.getAdvanceSchema());
                     },
                     getData: this.getData.bind(this),
                     setData: async (data) => {
@@ -505,7 +608,7 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
                     name: 'Emdedder Configurator',
                     target: 'Embedders',
                     getActions: () => {
-                        return this._getActions(this.getPropertiesSchema(true), this.getThemeSchema(true));
+                        return this._getActions(this.getPropertiesSchema(), this.getThemeSchema());
                     },
                     getLinkParams: () => {
                         const data = this._data || {};
@@ -596,7 +699,8 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
             var _a, _b, _c;
             if (!this.tableElm && ((_a = this._data) === null || _a === void 0 ? void 0 : _a.options))
                 return;
-            const { title, description, columns } = ((_b = this._data) === null || _b === void 0 ? void 0 : _b.options) || {};
+            const { title, description } = this._data;
+            const { columns } = ((_b = this._data) === null || _b === void 0 ? void 0 : _b.options) || {};
             this.lbTitle.caption = title;
             this.lbDescription.caption = description;
             this.lbDescription.visible = !!description;
