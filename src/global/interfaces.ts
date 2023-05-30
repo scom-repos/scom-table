@@ -1,6 +1,4 @@
 export interface ITableOptions {
-  title: string,
-  description?: string,
   columns: {
     name: string,
     title?: string,
@@ -15,5 +13,7 @@ export interface ITableOptions {
 
 export interface ITableConfig {
   apiEndpoint: string,
+  title: string,
+  description?: string,
   options: ITableOptions
 }

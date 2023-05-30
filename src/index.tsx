@@ -17,13 +17,56 @@ import {
   Input,
   observable
 } from '@ijstech/components';
-import { ITableConfig, formatNumberWithSeparators, callAPI, formatNumberByFormat } from './global/index';
+import { ITableConfig, formatNumberWithSeparators, callAPI, formatNumberByFormat, ITableOptions } from './global/index';
 import { containerStyle, tableStyle } from './index.css';
 import assets from './assets';
 import dataJson from './data.json';
 const Theme = Styles.Theme.ThemeVars;
 
 const pageSize = 25;
+
+const options = {
+  type: 'object',
+  properties: {
+    columns: {
+      type: 'array',
+      required: true,
+      items: {
+        type: 'object',
+        properties: {
+          name: {
+            type: 'string',
+            required: true
+          },
+          title: {
+            type: 'string'
+          },
+          alignContent: {
+            type: 'string',
+            enum: [
+              'left',
+              'center',
+              'right'
+            ]
+          },
+          type: {
+            type: 'string',
+            enum: [
+              'normal',
+              'progressbar'
+            ]
+          },
+          numberFormat: {
+            type: 'string'
+          },
+          isHidden: {
+            type: 'boolean'
+          }
+        }
+      }
+    }
+  }
+}
 
 interface ScomTableElement extends ControlElement {
   data: ITableConfig
@@ -60,7 +103,7 @@ export default class ScomTable extends Module {
   private itemStart = 0;
   private itemEnd = pageSize;
 
-  private _data: ITableConfig = { apiEndpoint: '', options: undefined };
+  private _data: ITableConfig = { apiEndpoint: '', title: '', options: undefined };
   tag: any = {};
   defaultEdit: boolean = true;
   readonly onConfirm: () => Promise<void>;
@@ -102,27 +145,7 @@ export default class ScomTable extends Module {
     this.onUpdateBlock();
   }
 
-  // onConfigSave(config: any) {
-  //   this.tag = config;
-  //   this.onUpdateBlock();
-  // }
-
-  // async edit() {
-  //   // this.vStackTable.visible = false
-  // }
-
-  // async confirm() {
-  //   this.onUpdateBlock();
-  //   // this.vStackTable.visible = true
-  // }
-
-  // async discard() {
-  //   // this.vStackTable.visible = true
-  // }
-
-  // async config() { }
-
-  private getPropertiesSchema(readOnly?: boolean) {
+  private getPropertiesSchema() {
     const propertiesSchema = {
       type: 'object',
       properties: {
@@ -131,16 +154,16 @@ export default class ScomTable extends Module {
           title: 'API Endpoint',
           required: true
         },
+        title: {
+          type: 'string',
+          required: true
+        },
+        description: {
+          type: 'string'
+        },
         options: {
           type: 'object',
           properties: {
-            title: {
-              type: 'string',
-              required: true
-            },
-            description: {
-              type: 'string'
-            },
             columns: {
               type: 'array',
               required: true,
@@ -185,7 +208,36 @@ export default class ScomTable extends Module {
     return propertiesSchema as any;
   }
 
-  private getThemeSchema(readOnly?: boolean) {
+  private getGeneralSchema() {
+    const propertiesSchema = {
+      type: 'object',
+      required: ['apiEndpoint', 'title'],
+      properties: {
+        apiEndpoint: {
+          type: 'string'
+        },
+        title: {
+          type: 'string'
+        },
+        description: {
+          type: 'string'
+        }
+      }
+    }
+    return propertiesSchema as IDataSchema;
+  }
+
+  private getAdvanceSchema() {
+    const propertiesSchema = {
+      type: 'object',
+      properties: {
+        options
+      }
+    };
+    return propertiesSchema as IDataSchema;
+  }
+
+  private getThemeSchema() {
     const themeSchema = {
       type: 'object',
       properties: {
@@ -231,22 +283,28 @@ export default class ScomTable extends Module {
     return themeSchema as IDataSchema;
   }
 
-  private _getActions(propertiesSchema: IDataSchema, themeSchema: IDataSchema) {
+  private _getActions(propertiesSchema: IDataSchema, themeSchema: IDataSchema, advancedSchema?: IDataSchema) {
     const actions = [
       {
         name: 'Settings',
         icon: 'cog',
         command: (builder: any, userInputData: any) => {
-          let _oldData: ITableConfig = { apiEndpoint: '', options: undefined };
+          let _oldData: ITableConfig = { apiEndpoint: '', title: '', options: undefined };
           return {
             execute: async () => {
-              _oldData = {...this._data};
-              if (userInputData?.apiEndpoint !== undefined) this._data.apiEndpoint = userInputData.apiEndpoint;
-              if (userInputData?.options !== undefined) this._data.options = userInputData.options;
+              _oldData = { ...this._data };
+              if (userInputData) {
+                if (advancedSchema) {
+                  this._data = { ...this._data, ...userInputData };
+                } else {
+                  this._data = { ...userInputData };
+                }
+              }
               if (builder?.setData) builder.setData(this._data);
               this.setData(this._data);
             },
             undo: () => {
+              if (advancedSchema) _oldData = { ..._oldData, options: this._data.options };
               if (builder?.setData) builder.setData(_oldData);
               this.setData(_oldData);
             },
@@ -254,7 +312,7 @@ export default class ScomTable extends Module {
           }
         },
         userInputDataSchema: propertiesSchema,
-        userInputUISchema: {
+        userInputUISchema: advancedSchema ? undefined : {
           type: 'VerticalLayout',
           elements: [
             {
@@ -264,11 +322,11 @@ export default class ScomTable extends Module {
             },
             {
               type: 'Control',
-              scope: '#/properties/options/properties/title'
+              scope: '#/properties/title'
             },
             {
               type: 'Control',
-              scope: '#/properties/options/properties/description'
+              scope: '#/properties/description'
             },
             {
               type: 'Control',
@@ -306,6 +364,45 @@ export default class ScomTable extends Module {
         userInputDataSchema: themeSchema
       }
     ]
+    if (advancedSchema) {
+      const advanced = {
+        name: 'Advanced',
+        icon: 'cog',
+        command: (builder: any, userInputData: any) => {
+          let _oldData: ITableOptions = { columns: [] };
+          return {
+            execute: async () => {
+              _oldData = { ...this._data?.options };
+              if (userInputData?.options !== undefined) this._data.options = userInputData.options;
+              if (builder?.setData) builder.setData(this._data);
+              this.setData(this._data);
+            },
+            undo: () => {
+              this._data.options = { ..._oldData };
+              if (builder?.setData) builder.setData(this._data);
+              this.setData(this._data);
+            },
+            redo: () => { }
+          }
+        },
+        userInputDataSchema: advancedSchema,
+        userInputUISchema: {
+          type: 'VerticalLayout',
+          elements: [
+            {
+              type: 'Control',
+              scope: '#/properties/options/properties/columns',
+              options: {
+                detail: {
+                  type: 'VerticalLayout'
+                }
+              }
+            }
+          ]
+        }
+      }
+      actions.push(advanced);
+    }
     return actions
   }
 
@@ -316,12 +413,12 @@ export default class ScomTable extends Module {
         name: 'Builder Configurator',
         target: 'Builders',
         getActions: () => {
-          return this._getActions(this.getPropertiesSchema(), this.getThemeSchema());
+          return this._getActions(this.getGeneralSchema(), this.getThemeSchema(), this.getAdvanceSchema());
         },
         getData: this.getData.bind(this),
         setData: async (data: ITableConfig) => {
           const defaultData = dataJson.defaultBuilderData;
-          await this.setData({...defaultData, ...data});
+          await this.setData({ ...defaultData, ...data });
         },
         getTag: this.getTag.bind(this),
         setTag: this.setTag.bind(this)
@@ -330,7 +427,7 @@ export default class ScomTable extends Module {
         name: 'Emdedder Configurator',
         target: 'Embedders',
         getActions: () => {
-          return this._getActions(this.getPropertiesSchema(true), this.getThemeSchema(true))
+          return this._getActions(this.getPropertiesSchema(), this.getThemeSchema())
         },
         getLinkParams: () => {
           const data = this._data || {};
@@ -427,7 +524,8 @@ export default class ScomTable extends Module {
 
   private renderTable(resize?: boolean) {
     if (!this.tableElm && this._data?.options) return;
-    const { title, description, columns } = this._data?.options || {};
+    const { title, description } = this._data;
+    const { columns } = this._data?.options || {};
     this.lbTitle.caption = title;
     this.lbDescription.caption = description;
     this.lbDescription.visible = !!description;
