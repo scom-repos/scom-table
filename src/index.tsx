@@ -161,48 +161,7 @@ export default class ScomTable extends Module {
         description: {
           type: 'string'
         },
-        options: {
-          type: 'object',
-          properties: {
-            columns: {
-              type: 'array',
-              required: true,
-              items: {
-                type: 'object',
-                properties: {
-                  name: {
-                    type: 'string',
-                    required: true
-                  },
-                  title: {
-                    type: 'string'
-                  },
-                  alignContent: {
-                    type: 'string',
-                    enum: [
-                      'left',
-                      'center',
-                      'right'
-                    ]
-                  },
-                  type: {
-                    type: 'string',
-                    enum: [
-                      'normal',
-                      'progressbar'
-                    ]
-                  },
-                  numberFormat: {
-                    type: 'string'
-                  },
-                  isHidden: {
-                    type: 'boolean'
-                  }
-                }
-              }
-            }
-          }
-        }
+        options
       }
     }
     return propertiesSchema as any;
@@ -487,8 +446,8 @@ export default class ScomTable extends Module {
     this.updateStyle('--text-primary', this.tag?.fontColor);
     this.updateStyle('--background-main', this.tag?.backgroundColor);
     this.updateStyle('--colors-info-main', this.tag?.progressBackgroundColor);
-    this.updateStyle('--colors-success-light', this.tag?.tableFooterBackgroundColor || '#ffeceb');
-    this.updateStyle('--colors-success-contrast_text', this.tag?.tableFooterFontColor);
+    this.updateStyle('--colors-success-light', this.tag?.footerBackgroundColor || '#ffeceb');
+    this.updateStyle('--colors-success-contrast_text', this.tag?.footerFontColor);
     this.updateStyle('--colors-success-dark', this.tag?.paginationActiveBackgoundColor || '#e47872');
     this.updateStyle('--colors-secondary-contrast_text', this.tag?.paginationActiveFontColor);
   }
