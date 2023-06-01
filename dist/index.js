@@ -333,48 +333,7 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
                     description: {
                         type: 'string'
                     },
-                    options: {
-                        type: 'object',
-                        properties: {
-                            columns: {
-                                type: 'array',
-                                required: true,
-                                items: {
-                                    type: 'object',
-                                    properties: {
-                                        name: {
-                                            type: 'string',
-                                            required: true
-                                        },
-                                        title: {
-                                            type: 'string'
-                                        },
-                                        alignContent: {
-                                            type: 'string',
-                                            enum: [
-                                                'left',
-                                                'center',
-                                                'right'
-                                            ]
-                                        },
-                                        type: {
-                                            type: 'string',
-                                            enum: [
-                                                'normal',
-                                                'progressbar'
-                                            ]
-                                        },
-                                        numberFormat: {
-                                            type: 'string'
-                                        },
-                                        isHidden: {
-                                            type: 'boolean'
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    options
                 }
             };
             return propertiesSchema;
@@ -663,8 +622,8 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
             this.updateStyle('--text-primary', (_b = this.tag) === null || _b === void 0 ? void 0 : _b.fontColor);
             this.updateStyle('--background-main', (_c = this.tag) === null || _c === void 0 ? void 0 : _c.backgroundColor);
             this.updateStyle('--colors-info-main', (_d = this.tag) === null || _d === void 0 ? void 0 : _d.progressBackgroundColor);
-            this.updateStyle('--colors-success-light', ((_e = this.tag) === null || _e === void 0 ? void 0 : _e.tableFooterBackgroundColor) || '#ffeceb');
-            this.updateStyle('--colors-success-contrast_text', (_f = this.tag) === null || _f === void 0 ? void 0 : _f.tableFooterFontColor);
+            this.updateStyle('--colors-success-light', ((_e = this.tag) === null || _e === void 0 ? void 0 : _e.footerBackgroundColor) || '#ffeceb');
+            this.updateStyle('--colors-success-contrast_text', (_f = this.tag) === null || _f === void 0 ? void 0 : _f.footerFontColor);
             this.updateStyle('--colors-success-dark', ((_g = this.tag) === null || _g === void 0 ? void 0 : _g.paginationActiveBackgoundColor) || '#e47872');
             this.updateStyle('--colors-secondary-contrast_text', (_h = this.tag) === null || _h === void 0 ? void 0 : _h.paginationActiveFontColor);
         }
