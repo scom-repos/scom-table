@@ -142,6 +142,10 @@ define("@scom/scom-table/index.css.ts", ["require", "exports", "@ijstech/compone
                         position: 'sticky',
                         top: 0,
                         zIndex: 1
+                    },
+                    'tr:hover td': {
+                        background: 'transparent',
+                        opacity: 0.8
                     }
                 }
             },

@@ -31,6 +31,10 @@ export const tableStyle = Styles.style({
           position: 'sticky',
           top: 0,
           zIndex: 1
+        },
+        'tr:hover td': {
+          background: 'transparent',
+          opacity: 0.8
         }
       }
     },
