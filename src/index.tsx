@@ -224,6 +224,14 @@ export default class ScomTable extends Module {
           type: 'string',
           format: 'color'
         },
+        headerBackgroundColor: {
+          type: 'string',
+          format: 'color'
+        },
+        headerFontColor: {
+          type: 'string',
+          format: 'color'
+        },
         paginationActiveBackgoundColor: {
           type: 'string',
           format: 'color'
@@ -451,6 +459,8 @@ export default class ScomTable extends Module {
     this.updateStyle('--colors-success-contrast_text', this.tag?.footerFontColor);
     this.updateStyle('--colors-success-dark', this.tag?.paginationActiveBackgoundColor || '#e47872');
     this.updateStyle('--colors-secondary-contrast_text', this.tag?.paginationActiveFontColor);
+    this.updateStyle('--colors-info-light', this.tag?.headerBackgroundColor || '#ffeceb');
+    this.updateStyle('--colors-info-contrast_text', this.tag?.headerFontColor);
   }
 
   private onUpdateBlock() {
@@ -584,6 +594,8 @@ export default class ScomTable extends Module {
       footerFontColor: currentTheme.colors.success.contrastText,
       paginationActiveBackgoundColor: currentTheme.colors.success.dark || '#e47872',
       paginationActiveFontColor: currentTheme.colors.secondary.contrastText,
+      headerBackgroundColor: currentTheme.colors.info.light || '#ffeceb',
+      headerFontColor: currentTheme.colors.info.contrastText,
       height: 500,
       boxShadow: false
     })

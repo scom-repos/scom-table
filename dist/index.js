@@ -142,10 +142,13 @@ define("@scom/scom-table/index.css.ts", ["require", "exports", "@ijstech/compone
                         height: 'inherit'
                     },
                     'thead': {
-                        background: Theme.background.main,
+                        background: Theme.colors.info.light,
                         position: 'sticky',
                         top: 0,
                         zIndex: 1
+                    },
+                    '.i-table-header>tr>th': {
+                        color: Theme.colors.info.contrastText
                     },
                     'tr:hover td': {
                         background: 'transparent',
@@ -401,6 +404,14 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
                         type: 'string',
                         format: 'color'
                     },
+                    headerBackgroundColor: {
+                        type: 'string',
+                        format: 'color'
+                    },
+                    headerFontColor: {
+                        type: 'string',
+                        format: 'color'
+                    },
                     paginationActiveBackgoundColor: {
                         type: 'string',
                         format: 'color'
@@ -624,7 +635,7 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
             value ? this.style.setProperty(name, value) : this.style.removeProperty(name);
         }
         updateTheme() {
-            var _a, _b, _c, _d, _e, _f, _g, _h;
+            var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
             if (this.vStackTable) {
                 this.vStackTable.style.boxShadow = ((_a = this.tag) === null || _a === void 0 ? void 0 : _a.darkShadow) ? '0 -2px 10px rgba(0, 0, 0, 1)' : 'rgba(0, 0, 0, 0.16) 0px 1px 4px';
             }
@@ -635,6 +646,8 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
             this.updateStyle('--colors-success-contrast_text', (_f = this.tag) === null || _f === void 0 ? void 0 : _f.footerFontColor);
             this.updateStyle('--colors-success-dark', ((_g = this.tag) === null || _g === void 0 ? void 0 : _g.paginationActiveBackgoundColor) || '#e47872');
             this.updateStyle('--colors-secondary-contrast_text', (_h = this.tag) === null || _h === void 0 ? void 0 : _h.paginationActiveFontColor);
+            this.updateStyle('--colors-info-light', ((_j = this.tag) === null || _j === void 0 ? void 0 : _j.headerBackgroundColor) || '#ffeceb');
+            this.updateStyle('--colors-info-contrast_text', (_k = this.tag) === null || _k === void 0 ? void 0 : _k.headerFontColor);
         }
         onUpdateBlock() {
             this.renderTable();
@@ -763,6 +776,8 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
                 footerFontColor: currentTheme.colors.success.contrastText,
                 paginationActiveBackgoundColor: currentTheme.colors.success.dark || '#e47872',
                 paginationActiveFontColor: currentTheme.colors.secondary.contrastText,
+                headerBackgroundColor: currentTheme.colors.info.light || '#ffeceb',
+                headerFontColor: currentTheme.colors.info.contrastText,
                 height: 500,
                 boxShadow: false
             });
