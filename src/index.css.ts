@@ -27,10 +27,13 @@ export const tableStyle = Styles.style({
           height: 'inherit'
         },
         'thead': {
-          background: Theme.background.main,
+          background: Theme.colors.info.light,
           position: 'sticky',
           top: 0,
           zIndex: 1
+        },
+        '.i-table-header>tr>th': {
+          color: Theme.colors.info.contrastText
         },
         'tr:hover td': {
           background: 'transparent',

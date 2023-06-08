@@ -1,6 +1,10 @@
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -28,46 +32,46 @@ define("@scom/scom-table/global/utils.ts", ["require", "exports"], function (req
             return '-';
         const { decimals, format, percentValues } = options || {};
         if (percentValues) {
-            return `${exports.formatNumberWithSeparators(num, 2)}%`;
+            return `${(0, exports.formatNumberWithSeparators)(num, 2)}%`;
         }
         if (format) {
-            return exports.formatNumberByFormat(num, format);
+            return (0, exports.formatNumberByFormat)(num, format);
         }
         const absNum = Math.abs(num);
         if (absNum >= 1000000000) {
-            return exports.formatNumberWithSeparators((num / 1000000000), decimals || 3) + 'B';
+            return (0, exports.formatNumberWithSeparators)((num / 1000000000), decimals || 3) + 'B';
         }
         if (absNum >= 1000000) {
-            return exports.formatNumberWithSeparators((num / 1000000), decimals || 3) + 'M';
+            return (0, exports.formatNumberWithSeparators)((num / 1000000), decimals || 3) + 'M';
         }
         if (absNum >= 1000) {
-            return exports.formatNumberWithSeparators((num / 1000), decimals || 3) + 'K';
+            return (0, exports.formatNumberWithSeparators)((num / 1000), decimals || 3) + 'K';
         }
         if (absNum < 0.0000001) {
-            return exports.formatNumberWithSeparators(num);
+            return (0, exports.formatNumberWithSeparators)(num);
         }
         if (absNum < 0.00001) {
-            return exports.formatNumberWithSeparators(num, 6);
+            return (0, exports.formatNumberWithSeparators)(num, 6);
         }
         if (absNum < 0.001) {
-            return exports.formatNumberWithSeparators(num, 4);
+            return (0, exports.formatNumberWithSeparators)(num, 4);
         }
-        return exports.formatNumberWithSeparators(num, 2);
+        return (0, exports.formatNumberWithSeparators)(num, 2);
     };
     exports.formatNumber = formatNumber;
     const formatNumberByFormat = (num, format, separators) => {
         const decimalPlaces = format.split('.')[1] ? format.split('.').length : 0;
         if (format.includes('%')) {
-            return exports.formatNumberWithSeparators((num * 100), decimalPlaces) + '%';
+            return (0, exports.formatNumberWithSeparators)((num * 100), decimalPlaces) + '%';
         }
         const currencySymbol = format.indexOf('$') !== -1 ? '$' : '';
-        const roundedNum = exports.formatNumberWithSeparators(num, decimalPlaces);
+        const roundedNum = (0, exports.formatNumberWithSeparators)(num, decimalPlaces);
         if (separators && !format.includes('.ma')) {
             return `${currencySymbol}${roundedNum}`;
         }
         const parts = roundedNum.split('.');
         const decimalPart = parts.length > 1 ? parts[1] : '';
-        const integerPart = exports.formatNumber(parseInt(parts[0].replace(/,/g, '')), { decimals: decimalPart.length });
+        const integerPart = (0, exports.formatNumber)(parseInt(parts[0].replace(/,/g, '')), { decimals: decimalPart.length });
         return `${currencySymbol}${integerPart}`;
     };
     exports.formatNumberByFormat = formatNumberByFormat;
@@ -138,10 +142,13 @@ define("@scom/scom-table/index.css.ts", ["require", "exports", "@ijstech/compone
                         height: 'inherit'
                     },
                     'thead': {
-                        background: Theme.background.main,
+                        background: Theme.colors.info.light,
                         position: 'sticky',
                         top: 0,
                         zIndex: 1
+                    },
+                    '.i-table-header>tr>th': {
+                        color: Theme.colors.info.contrastText
                     },
                     'tr:hover td': {
                         background: 'transparent',
@@ -239,6 +246,7 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     const Theme = components_3.Styles.Theme.ThemeVars;
+    const currentTheme = components_3.Styles.Theme.currentTheme;
     const pageSize = 25;
     const options = {
         type: 'object',
@@ -283,6 +291,11 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
         }
     };
     let ScomTable = class ScomTable extends components_3.Module {
+        static async create(options, parent) {
+            let self = new this(parent, options);
+            await self.ready();
+            return self;
+        }
         constructor(parent, options) {
             super(parent, options);
             this.tableData = [];
@@ -294,11 +307,6 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
             this._data = { apiEndpoint: '', title: '', options: undefined };
             this.tag = {};
             this.defaultEdit = true;
-        }
-        static async create(options, parent) {
-            let self = new this(parent, options);
-            await self.ready();
-            return self;
         }
         getData() {
             return this._data;
@@ -396,6 +404,14 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
                         type: 'string',
                         format: 'color'
                     },
+                    headerBackgroundColor: {
+                        type: 'string',
+                        format: 'color'
+                    },
+                    headerFontColor: {
+                        type: 'string',
+                        format: 'color'
+                    },
                     paginationActiveBackgoundColor: {
                         type: 'string',
                         format: 'color'
@@ -404,9 +420,9 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
                         type: 'string',
                         format: 'color'
                     },
-                    width: {
-                        type: 'string'
-                    },
+                    // width: {
+                    //   type: 'string'
+                    // },
                     height: {
                         type: 'string'
                     }
@@ -619,7 +635,7 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
             value ? this.style.setProperty(name, value) : this.style.removeProperty(name);
         }
         updateTheme() {
-            var _a, _b, _c, _d, _e, _f, _g, _h;
+            var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
             if (this.vStackTable) {
                 this.vStackTable.style.boxShadow = ((_a = this.tag) === null || _a === void 0 ? void 0 : _a.darkShadow) ? '0 -2px 10px rgba(0, 0, 0, 1)' : 'rgba(0, 0, 0, 0.16) 0px 1px 4px';
             }
@@ -630,6 +646,8 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
             this.updateStyle('--colors-success-contrast_text', (_f = this.tag) === null || _f === void 0 ? void 0 : _f.footerFontColor);
             this.updateStyle('--colors-success-dark', ((_g = this.tag) === null || _g === void 0 ? void 0 : _g.paginationActiveBackgoundColor) || '#e47872');
             this.updateStyle('--colors-secondary-contrast_text', (_h = this.tag) === null || _h === void 0 ? void 0 : _h.paginationActiveFontColor);
+            this.updateStyle('--colors-info-light', ((_j = this.tag) === null || _j === void 0 ? void 0 : _j.headerBackgroundColor) || '#ffeceb');
+            this.updateStyle('--colors-info-contrast_text', (_k = this.tag) === null || _k === void 0 ? void 0 : _k.headerFontColor);
         }
         onUpdateBlock() {
             this.renderTable();
@@ -647,7 +665,7 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
             this.apiEndpoint = apiEndpoint;
             if (apiEndpoint) {
                 this.loadingElm.visible = true;
-                const data = await index_1.callAPI(apiEndpoint);
+                const data = await (0, index_1.callAPI)(apiEndpoint);
                 this.loadingElm.visible = false;
                 if (data && this._data.apiEndpoint === apiEndpoint) {
                     this.tableData = data;
@@ -706,8 +724,8 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
                                 });
                             }
                             new components_3.Label(hStack, {
-                                caption: isNumber && numberFormat ? index_1.formatNumberByFormat(data, numberFormat, true) :
-                                    isNumber ? index_1.formatNumberWithSeparators(data) : data,
+                                caption: isNumber && numberFormat ? (0, index_1.formatNumberByFormat)(data, numberFormat, true) :
+                                    isNumber ? (0, index_1.formatNumberWithSeparators)(data) : data,
                                 font: {
                                     size: '12px',
                                     color: Theme.text.primary
@@ -750,12 +768,25 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
             this.isReadyCallbackQueued = true;
             this.updateTheme();
             super.init();
+            this.setTag({
+                fontColor: currentTheme.text.primary,
+                backgroundColor: currentTheme.background.main,
+                progressBackgroundColor: currentTheme.colors.info.main,
+                footerBackgroundColor: currentTheme.colors.success.light || '#ffeceb',
+                footerFontColor: currentTheme.colors.success.contrastText,
+                paginationActiveBackgoundColor: currentTheme.colors.success.dark || '#e47872',
+                paginationActiveFontColor: currentTheme.colors.secondary.contrastText,
+                headerBackgroundColor: currentTheme.colors.info.light || '#ffeceb',
+                headerFontColor: currentTheme.colors.info.contrastText,
+                height: 500,
+                boxShadow: false
+            });
             this.classList.add(index_css_1.tableStyle);
-            const { width, height, darkShadow } = this.tag || {};
-            this.width = width || 700;
-            this.height = height || 500;
+            // const { width, height, darkShadow } = this.tag || {};
+            // this.width = width || 700;
+            // this.height = height || 500;
             this.maxWidth = '100%';
-            this.vStackTable.style.boxShadow = darkShadow ? '0 -2px 10px rgba(0, 0, 0, 1)' : 'rgba(0, 0, 0, 0.16) 0px 1px 4px';
+            this.vStackTable.style.boxShadow = 'rgba(0, 0, 0, 0.16) 0px 1px 4px';
             const data = this.getAttribute('data', true);
             if (data) {
                 this.setData(data);
@@ -786,11 +817,11 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
         }
     };
     __decorate([
-        components_3.observable()
+        (0, components_3.observable)()
     ], ScomTable.prototype, "totalPage", void 0);
     ScomTable = __decorate([
         components_3.customModule,
-        components_3.customElements('i-scom-table')
+        (0, components_3.customElements)('i-scom-table')
     ], ScomTable);
     exports.default = ScomTable;
 });

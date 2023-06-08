@@ -22,6 +22,7 @@ import { containerStyle, tableStyle } from './index.css';
 import assets from './assets';
 import dataJson from './data.json';
 const Theme = Styles.Theme.ThemeVars;
+const currentTheme = Styles.Theme.currentTheme;
 
 const pageSize = 25;
 
@@ -193,7 +194,7 @@ export default class ScomTable extends Module {
         options
       }
     };
-    return propertiesSchema as IDataSchema;
+    return propertiesSchema as any;
   }
 
   private getThemeSchema() {
@@ -223,6 +224,14 @@ export default class ScomTable extends Module {
           type: 'string',
           format: 'color'
         },
+        headerBackgroundColor: {
+          type: 'string',
+          format: 'color'
+        },
+        headerFontColor: {
+          type: 'string',
+          format: 'color'
+        },
         paginationActiveBackgoundColor: {
           type: 'string',
           format: 'color'
@@ -231,9 +240,9 @@ export default class ScomTable extends Module {
           type: 'string',
           format: 'color'
         },
-        width: {
-          type: 'string'
-        },
+        // width: {
+        //   type: 'string'
+        // },
         height: {
           type: 'string'
         }
@@ -450,6 +459,8 @@ export default class ScomTable extends Module {
     this.updateStyle('--colors-success-contrast_text', this.tag?.footerFontColor);
     this.updateStyle('--colors-success-dark', this.tag?.paginationActiveBackgoundColor || '#e47872');
     this.updateStyle('--colors-secondary-contrast_text', this.tag?.paginationActiveFontColor);
+    this.updateStyle('--colors-info-light', this.tag?.headerBackgroundColor || '#ffeceb');
+    this.updateStyle('--colors-info-contrast_text', this.tag?.headerFontColor);
   }
 
   private onUpdateBlock() {
@@ -575,12 +586,25 @@ export default class ScomTable extends Module {
     this.isReadyCallbackQueued = true;
     this.updateTheme();
     super.init();
+    this.setTag({
+      fontColor: currentTheme.text.primary,
+      backgroundColor: currentTheme.background.main,
+      progressBackgroundColor: currentTheme.colors.info.main,
+      footerBackgroundColor: currentTheme.colors.success.light || '#ffeceb',
+      footerFontColor: currentTheme.colors.success.contrastText,
+      paginationActiveBackgoundColor: currentTheme.colors.success.dark || '#e47872',
+      paginationActiveFontColor: currentTheme.colors.secondary.contrastText,
+      headerBackgroundColor: currentTheme.colors.info.light || '#ffeceb',
+      headerFontColor: currentTheme.colors.info.contrastText,
+      height: 500,
+      boxShadow: false
+    })
     this.classList.add(tableStyle);
-    const { width, height, darkShadow } = this.tag || {};
-    this.width = width || 700;
-    this.height = height || 500;
+    // const { width, height, darkShadow } = this.tag || {};
+    // this.width = width || 700;
+    // this.height = height || 500;
     this.maxWidth = '100%';
-    this.vStackTable.style.boxShadow = darkShadow ? '0 -2px 10px rgba(0, 0, 0, 1)' : 'rgba(0, 0, 0, 0.16) 0px 1px 4px';
+    this.vStackTable.style.boxShadow = 'rgba(0, 0, 0, 0.16) 0px 1px 4px';
     const data = this.getAttribute('data', true);
     if (data) {
       this.setData(data);
