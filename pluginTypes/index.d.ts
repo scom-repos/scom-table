@@ -97,6 +97,7 @@ declare module "@scom/scom-table" {
     import { Module, ControlElement, Container, IDataSchema } from '@ijstech/components';
     import { ITableConfig } from "@scom/scom-table/global/index.ts";
     interface ScomTableElement extends ControlElement {
+        lazyLoad?: boolean;
         data: ITableConfig;
     }
     global {

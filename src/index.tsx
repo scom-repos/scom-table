@@ -70,6 +70,7 @@ const options = {
 }
 
 interface ScomTableElement extends ControlElement {
+  lazyLoad?: boolean;
   data: ITableConfig
 }
 
@@ -584,8 +585,9 @@ export default class ScomTable extends Module {
 
   async init() {
     this.isReadyCallbackQueued = true;
-    this.updateTheme();
     super.init();
+    this.classList.add(tableStyle);
+    this.updateTheme();
     this.setTag({
       fontColor: currentTheme.text.primary,
       backgroundColor: currentTheme.background.main,
@@ -599,12 +601,18 @@ export default class ScomTable extends Module {
       height: 500,
       boxShadow: false
     })
-    this.classList.add(tableStyle);
     // const { width, height, darkShadow } = this.tag || {};
     // this.width = width || 700;
     // this.height = height || 500;
     this.maxWidth = '100%';
     this.vStackTable.style.boxShadow = 'rgba(0, 0, 0, 0.16) 0px 1px 4px';
+    const lazyLoad = this.getAttribute('lazyLoad', true, false);
+    if (!lazyLoad) {
+      const data = this.getAttribute('data', true);
+      if (data) {
+        this.setData(data);
+      }
+    }
     const data = this.getAttribute('data', true);
     if (data) {
       this.setData(data);
