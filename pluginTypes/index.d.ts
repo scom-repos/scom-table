@@ -1,5 +1,6 @@
 /// <amd-module name="@scom/scom-table/global/interfaces.ts" />
 declare module "@scom/scom-table/global/interfaces.ts" {
+    import { ModeType } from "@scom/scom-chart-data-source-setup";
     export interface ITableOptions {
         columns: {
             name: string;
@@ -17,6 +18,11 @@ declare module "@scom/scom-table/global/interfaces.ts" {
         title: string;
         description?: string;
         options: ITableOptions;
+        file?: {
+            cid: string;
+            name: string;
+        };
+        mode: ModeType;
     }
 }
 /// <amd-module name="@scom/scom-table/global/utils.ts" />
@@ -94,7 +100,7 @@ declare module "@scom/scom-table/data.json.ts" {
 }
 /// <amd-module name="@scom/scom-table" />
 declare module "@scom/scom-table" {
-    import { Module, ControlElement, Container, IDataSchema } from '@ijstech/components';
+    import { Module, ControlElement, Container, IDataSchema, VStack } from '@ijstech/components';
     import { ITableConfig } from "@scom/scom-table/global/index.ts";
     interface ScomTableElement extends ControlElement {
         lazyLoad?: boolean;
@@ -153,30 +159,11 @@ declare module "@scom/scom-table" {
                     undo: () => void;
                     redo: () => void;
                 };
-                userInputDataSchema: IDataSchema;
-                userInputUISchema: {
-                    type: string;
-                    elements: ({
-                        type: string;
-                        scope: string;
-                        title: string;
-                        options?: undefined;
-                    } | {
-                        type: string;
-                        scope: string;
-                        title?: undefined;
-                        options?: undefined;
-                    } | {
-                        type: string;
-                        scope: string;
-                        options: {
-                            detail: {
-                                type: string;
-                            };
-                        };
-                        title?: undefined;
-                    })[];
+                customUI: {
+                    render: (data?: any, onConfirm?: (result: boolean, data: any) => void) => VStack;
                 };
+                userInputDataSchema?: undefined;
+                userInputUISchema?: undefined;
             } | {
                 name: string;
                 icon: string;
@@ -186,6 +173,33 @@ declare module "@scom/scom-table" {
                     redo: () => void;
                 };
                 userInputDataSchema: IDataSchema;
+                userInputUISchema: {
+                    type: string;
+                    elements: ({
+                        type: string;
+                        scope: string;
+                        options?: undefined;
+                    } | {
+                        type: string;
+                        scope: string;
+                        options: {
+                            detail: {
+                                type: string;
+                            };
+                        };
+                    })[];
+                };
+                customUI?: undefined;
+            } | {
+                name: string;
+                icon: string;
+                command: (builder: any, userInputData: any) => {
+                    execute: () => Promise<void>;
+                    undo: () => void;
+                    redo: () => void;
+                };
+                userInputDataSchema: IDataSchema;
+                customUI?: undefined;
                 userInputUISchema?: undefined;
             })[];
             getData: any;
@@ -205,30 +219,11 @@ declare module "@scom/scom-table" {
                     undo: () => void;
                     redo: () => void;
                 };
-                userInputDataSchema: IDataSchema;
-                userInputUISchema: {
-                    type: string;
-                    elements: ({
-                        type: string;
-                        scope: string;
-                        title: string;
-                        options?: undefined;
-                    } | {
-                        type: string;
-                        scope: string;
-                        title?: undefined;
-                        options?: undefined;
-                    } | {
-                        type: string;
-                        scope: string;
-                        options: {
-                            detail: {
-                                type: string;
-                            };
-                        };
-                        title?: undefined;
-                    })[];
+                customUI: {
+                    render: (data?: any, onConfirm?: (result: boolean, data: any) => void) => VStack;
                 };
+                userInputDataSchema?: undefined;
+                userInputUISchema?: undefined;
             } | {
                 name: string;
                 icon: string;
@@ -238,6 +233,33 @@ declare module "@scom/scom-table" {
                     redo: () => void;
                 };
                 userInputDataSchema: IDataSchema;
+                userInputUISchema: {
+                    type: string;
+                    elements: ({
+                        type: string;
+                        scope: string;
+                        options?: undefined;
+                    } | {
+                        type: string;
+                        scope: string;
+                        options: {
+                            detail: {
+                                type: string;
+                            };
+                        };
+                    })[];
+                };
+                customUI?: undefined;
+            } | {
+                name: string;
+                icon: string;
+                command: (builder: any, userInputData: any) => {
+                    execute: () => Promise<void>;
+                    undo: () => void;
+                    redo: () => void;
+                };
+                userInputDataSchema: IDataSchema;
+                customUI?: undefined;
                 userInputUISchema?: undefined;
             })[];
             getLinkParams: () => {
@@ -255,6 +277,8 @@ declare module "@scom/scom-table" {
         private updateTheme;
         private onUpdateBlock;
         private updateTableData;
+        private renderSnapshotData;
+        private renderLiveData;
         private renderTable;
         private updateTableUI;
         private onSelectIndex;
