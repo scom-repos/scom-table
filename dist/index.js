@@ -242,7 +242,7 @@ define("@scom/scom-table/data.json.ts", ["require", "exports"], function (requir
         }
     };
 });
-define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/scom-table/global/index.ts", "@scom/scom-table/index.css.ts", "@scom/scom-table/assets.ts", "@scom/scom-table/data.json.ts"], function (require, exports, components_3, index_1, index_css_1, assets_1, data_json_1) {
+define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/scom-table/global/index.ts", "@scom/scom-table/index.css.ts", "@scom/scom-table/assets.ts", "@scom/scom-table/data.json.ts", "@scom/scom-chart-data-source-setup"], function (require, exports, components_3, index_1, index_css_1, assets_1, data_json_1, scom_chart_data_source_setup_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     const Theme = components_3.Styles.Theme.ThemeVars;
@@ -304,7 +304,7 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
             this.pageNumber = 0;
             this.itemStart = 0;
             this.itemEnd = pageSize;
-            this._data = { apiEndpoint: '', title: '', options: undefined };
+            this._data = { apiEndpoint: '', title: '', options: undefined, mode: scom_chart_data_source_setup_1.ModeType.LIVE };
             this.tag = {};
             this.defaultEdit = true;
         }
@@ -333,11 +333,11 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
             const propertiesSchema = {
                 type: 'object',
                 properties: {
-                    apiEndpoint: {
-                        type: 'string',
-                        title: 'API Endpoint',
-                        required: true
-                    },
+                    // apiEndpoint: {
+                    //   type: 'string',
+                    //   title: 'API Endpoint',
+                    //   required: true
+                    // },
                     title: {
                         type: 'string',
                         required: true
@@ -353,11 +353,11 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
         getGeneralSchema() {
             const propertiesSchema = {
                 type: 'object',
-                required: ['apiEndpoint', 'title'],
+                required: ['title'],
                 properties: {
-                    apiEndpoint: {
-                        type: 'string'
-                    },
+                    // apiEndpoint: {
+                    //   type: 'string'
+                    // },
                     title: {
                         type: 'string'
                     },
@@ -433,10 +433,75 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
         _getActions(propertiesSchema, themeSchema, advancedSchema) {
             const actions = [
                 {
+                    name: 'Data Source',
+                    icon: 'database',
+                    command: (builder, userInputData) => {
+                        let _oldData = { apiEndpoint: '', title: '', options: undefined, mode: scom_chart_data_source_setup_1.ModeType.LIVE };
+                        return {
+                            execute: async () => {
+                                _oldData = Object.assign({}, this._data);
+                                if (userInputData === null || userInputData === void 0 ? void 0 : userInputData.mode)
+                                    this._data.mode = userInputData === null || userInputData === void 0 ? void 0 : userInputData.mode;
+                                if (userInputData === null || userInputData === void 0 ? void 0 : userInputData.file)
+                                    this._data.file = userInputData === null || userInputData === void 0 ? void 0 : userInputData.file;
+                                if (userInputData === null || userInputData === void 0 ? void 0 : userInputData.apiEndpoint)
+                                    this._data.apiEndpoint = userInputData === null || userInputData === void 0 ? void 0 : userInputData.apiEndpoint;
+                                if (builder === null || builder === void 0 ? void 0 : builder.setData)
+                                    builder.setData(this._data);
+                                this.setData(this._data);
+                            },
+                            undo: () => {
+                                if (builder === null || builder === void 0 ? void 0 : builder.setData)
+                                    builder.setData(_oldData);
+                                this.setData(_oldData);
+                            },
+                            redo: () => { }
+                        };
+                    },
+                    customUI: {
+                        render: (data, onConfirm) => {
+                            const vstack = new components_3.VStack(null, { gap: '1rem' });
+                            const config = new scom_chart_data_source_setup_1.default(null, Object.assign(Object.assign({}, this._data), { chartData: JSON.stringify(this.tableData) }));
+                            const hstack = new components_3.HStack(null, {
+                                verticalAlignment: 'center',
+                                horizontalAlignment: 'end'
+                            });
+                            const button = new components_3.Button(null, {
+                                caption: 'Confirm',
+                                width: 'auto',
+                                height: 40,
+                                font: { color: Theme.colors.primary.contrastText }
+                            });
+                            hstack.append(button);
+                            vstack.append(config);
+                            vstack.append(hstack);
+                            button.onClick = async () => {
+                                const { apiEndpoint, file, mode } = config.data;
+                                if (mode === 'Live') {
+                                    if (!apiEndpoint)
+                                        return;
+                                    this._data.apiEndpoint = apiEndpoint;
+                                    this.updateTableData();
+                                }
+                                else {
+                                    if (!(file === null || file === void 0 ? void 0 : file.cid))
+                                        return;
+                                    this.tableData = config.data.chartData ? JSON.parse(config.data.chartData) : [];
+                                    this.onUpdateBlock();
+                                }
+                                if (onConfirm) {
+                                    onConfirm(true, Object.assign(Object.assign({}, this._data), { apiEndpoint, file, mode }));
+                                }
+                            };
+                            return vstack;
+                        }
+                    }
+                },
+                {
                     name: 'Settings',
                     icon: 'cog',
                     command: (builder, userInputData) => {
-                        let _oldData = { apiEndpoint: '', title: '', options: undefined };
+                        let _oldData = { apiEndpoint: '', title: '', options: undefined, mode: scom_chart_data_source_setup_1.ModeType.LIVE };
                         return {
                             execute: async () => {
                                 _oldData = Object.assign({}, this._data);
@@ -466,11 +531,11 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
                     userInputUISchema: advancedSchema ? undefined : {
                         type: 'VerticalLayout',
                         elements: [
-                            {
-                                type: 'Control',
-                                scope: '#/properties/apiEndpoint',
-                                title: 'API Endpoint'
-                            },
+                            // {
+                            //   type: 'Control',
+                            //   scope: '#/properties/apiEndpoint',
+                            //   title: 'API Endpoint'
+                            // },
                             {
                                 type: 'Control',
                                 scope: '#/properties/title'
@@ -654,9 +719,31 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
             this.updateTheme();
         }
         async updateTableData() {
+            var _a;
             if (this.inputSearch) {
                 this.inputSearch.value = '';
             }
+            this.loadingElm.visible = true;
+            if (((_a = this._data) === null || _a === void 0 ? void 0 : _a.mode) === scom_chart_data_source_setup_1.ModeType.SNAPSHOT)
+                await this.renderSnapshotData();
+            else
+                await this.renderLiveData();
+            this.loadingElm.visible = false;
+        }
+        async renderSnapshotData() {
+            var _a;
+            if ((_a = this._data.file) === null || _a === void 0 ? void 0 : _a.cid) {
+                const data = await (0, scom_chart_data_source_setup_1.fetchContentByCID)(this._data.file.cid);
+                if (data) {
+                    this.tableData = data;
+                    this.onUpdateBlock();
+                    return;
+                }
+            }
+            this.tableData = [];
+            this.onUpdateBlock();
+        }
+        async renderLiveData() {
             if (this._data.apiEndpoint === this.apiEndpoint) {
                 this.onUpdateBlock();
                 return;
@@ -664,14 +751,16 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
             const apiEndpoint = this._data.apiEndpoint;
             this.apiEndpoint = apiEndpoint;
             if (apiEndpoint) {
-                this.loadingElm.visible = true;
-                const data = await (0, index_1.callAPI)(apiEndpoint);
-                this.loadingElm.visible = false;
-                if (data && this._data.apiEndpoint === apiEndpoint) {
-                    this.tableData = data;
-                    this.onUpdateBlock();
-                    return;
+                let data = null;
+                try {
+                    data = await (0, index_1.callAPI)(apiEndpoint);
+                    if (data && this._data.apiEndpoint === apiEndpoint) {
+                        this.tableData = data;
+                        this.onUpdateBlock();
+                        return;
+                    }
                 }
+                catch (_a) { }
             }
             this.tableData = [];
             this.onUpdateBlock();

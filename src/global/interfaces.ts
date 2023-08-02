@@ -1,3 +1,5 @@
+import { ModeType } from "@scom/scom-chart-data-source-setup"
+
 export interface ITableOptions {
   columns: {
     name: string,
@@ -15,5 +17,10 @@ export interface ITableConfig {
   apiEndpoint: string,
   title: string,
   description?: string,
-  options: ITableOptions
+  options: ITableOptions,
+  file?: {
+    cid: string,
+    name: string
+  },
+  mode: ModeType
 }

@@ -15,12 +15,14 @@ import {
   Panel,
   Pagination,
   Input,
-  observable
+  observable,
+  Button
 } from '@ijstech/components';
 import { ITableConfig, formatNumberWithSeparators, callAPI, formatNumberByFormat, ITableOptions } from './global/index';
 import { containerStyle, tableStyle } from './index.css';
 import assets from './assets';
 import dataJson from './data.json';
+import ScomChartDataSourceSetup, { ModeType, fetchContentByCID } from '@scom/scom-chart-data-source-setup';
 const Theme = Styles.Theme.ThemeVars;
 const currentTheme = Styles.Theme.currentTheme;
 
@@ -105,7 +107,7 @@ export default class ScomTable extends Module {
   private itemStart = 0;
   private itemEnd = pageSize;
 
-  private _data: ITableConfig = { apiEndpoint: '', title: '', options: undefined };
+  private _data: ITableConfig = { apiEndpoint: '', title: '', options: undefined, mode: ModeType.LIVE };
   tag: any = {};
   defaultEdit: boolean = true;
   readonly onConfirm: () => Promise<void>;
@@ -151,11 +153,11 @@ export default class ScomTable extends Module {
     const propertiesSchema = {
       type: 'object',
       properties: {
-        apiEndpoint: {
-          type: 'string',
-          title: 'API Endpoint',
-          required: true
-        },
+        // apiEndpoint: {
+        //   type: 'string',
+        //   title: 'API Endpoint',
+        //   required: true
+        // },
         title: {
           type: 'string',
           required: true
@@ -172,11 +174,11 @@ export default class ScomTable extends Module {
   private getGeneralSchema() {
     const propertiesSchema = {
       type: 'object',
-      required: ['apiEndpoint', 'title'],
+      required: ['title'],
       properties: {
-        apiEndpoint: {
-          type: 'string'
-        },
+        // apiEndpoint: {
+        //   type: 'string'
+        // },
         title: {
           type: 'string'
         },
@@ -255,10 +257,67 @@ export default class ScomTable extends Module {
   private _getActions(propertiesSchema: IDataSchema, themeSchema: IDataSchema, advancedSchema?: IDataSchema) {
     const actions = [
       {
+        name: 'Data Source',
+        icon: 'database',
+        command: (builder: any, userInputData: any) => {
+          let _oldData: ITableConfig = { apiEndpoint: '', title: '', options: undefined,  mode: ModeType.LIVE };
+          return {
+            execute: async () => {
+              _oldData = { ...this._data };
+              if (userInputData?.mode) this._data.mode = userInputData?.mode;
+              if (userInputData?.file) this._data.file = userInputData?.file;
+              if (userInputData?.apiEndpoint) this._data.apiEndpoint = userInputData?.apiEndpoint;
+              if (builder?.setData) builder.setData(this._data);
+              this.setData(this._data);
+            },
+            undo: () => {
+              if (builder?.setData) builder.setData(_oldData);
+              this.setData(_oldData);
+            },
+            redo: () => { }
+          }
+        },
+        customUI: {
+          render: (data?: any, onConfirm?: (result: boolean, data: any) => void) => {
+            const vstack = new VStack(null, {gap: '1rem'});
+            const config = new ScomChartDataSourceSetup(null, {...this._data, chartData: JSON.stringify(this.tableData)});
+            const hstack = new HStack(null, {
+              verticalAlignment: 'center',
+              horizontalAlignment: 'end'
+            });
+            const button = new Button(null, {
+              caption: 'Confirm',
+              width: 'auto',
+              height: 40,
+              font: {color: Theme.colors.primary.contrastText}
+            });
+            hstack.append(button);
+            vstack.append(config);
+            vstack.append(hstack);
+            button.onClick = async () => {
+              const { apiEndpoint, file, mode } = config.data;
+              if (mode === 'Live') {
+                if (!apiEndpoint) return;
+                this._data.apiEndpoint = apiEndpoint;
+                this.updateTableData();
+              } else {
+                if (!file?.cid) return;
+                this.tableData = config.data.chartData ? JSON.parse(config.data.chartData) : []
+                this.onUpdateBlock();
+              }
+              if (onConfirm) {
+                onConfirm(true, {...this._data, apiEndpoint, file, mode});
+              }
+            }
+            return vstack;
+          }
+        }
+      },
+      {
         name: 'Settings',
         icon: 'cog',
         command: (builder: any, userInputData: any) => {
-          let _oldData: ITableConfig = { apiEndpoint: '', title: '', options: undefined };
+          let _oldData: ITableConfig = { apiEndpoint: '', title: '', options: undefined, mode: ModeType.LIVE };
           return {
             execute: async () => {
               _oldData = { ...this._data };
@@ -284,11 +343,11 @@ export default class ScomTable extends Module {
         userInputUISchema: advancedSchema ? undefined : {
           type: 'VerticalLayout',
           elements: [
-            {
-              type: 'Control',
-              scope: '#/properties/apiEndpoint',
-              title: 'API Endpoint'
-            },
+            // {
+            //   type: 'Control',
+            //   scope: '#/properties/apiEndpoint',
+            //   title: 'API Endpoint'
+            // },
             {
               type: 'Control',
               scope: '#/properties/title'
@@ -473,6 +532,28 @@ export default class ScomTable extends Module {
     if (this.inputSearch) {
       this.inputSearch.value = '';
     }
+    this.loadingElm.visible = true;
+    if (this._data?.mode === ModeType.SNAPSHOT)
+      await this.renderSnapshotData();
+    else
+      await this.renderLiveData();
+    this.loadingElm.visible = false;
+  }
+
+  private async renderSnapshotData() {
+    if (this._data.file?.cid) {
+      const data = await fetchContentByCID(this._data.file.cid);
+      if (data) {
+        this.tableData = data;
+        this.onUpdateBlock();
+        return;
+      }
+    }
+    this.tableData = [];
+    this.onUpdateBlock();
+  }
+
+  private async renderLiveData() {
     if (this._data.apiEndpoint === this.apiEndpoint) {
       this.onUpdateBlock();
       return;
@@ -480,14 +561,15 @@ export default class ScomTable extends Module {
     const apiEndpoint = this._data.apiEndpoint;
     this.apiEndpoint = apiEndpoint;
     if (apiEndpoint) {
-      this.loadingElm.visible = true;
-      const data = await callAPI(apiEndpoint);
-      this.loadingElm.visible = false;
-      if (data && this._data.apiEndpoint === apiEndpoint) {
-        this.tableData = data;
-        this.onUpdateBlock();
-        return;
-      }
+      let data = null
+      try {
+        data = await callAPI(apiEndpoint);
+        if (data && this._data.apiEndpoint === apiEndpoint) {
+          this.tableData = data;
+          this.onUpdateBlock();
+          return;
+        }
+      } catch {}
     }
     this.tableData = [];
     this.onUpdateBlock();
