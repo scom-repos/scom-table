@@ -126,7 +126,6 @@ declare module "@scom/scom-table" {
         private paginationElm;
         private lbTotal;
         private inputSearch;
-        private apiEndpoint;
         private totalPage;
         private pageNumber;
         private itemStart;
