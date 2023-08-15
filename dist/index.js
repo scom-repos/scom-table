@@ -242,14 +242,14 @@ define("@scom/scom-table/data.json.ts", ["require", "exports"], function (requir
         }
     };
 });
-define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/scom-table/global/index.ts", "@scom/scom-table/index.css.ts", "@scom/scom-table/assets.ts", "@scom/scom-table/data.json.ts", "@scom/scom-chart-data-source-setup"], function (require, exports, components_3, index_1, index_css_1, assets_1, data_json_1, scom_chart_data_source_setup_1) {
+define("@scom/scom-table/formSchema.ts", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    const Theme = components_3.Styles.Theme.ThemeVars;
-    const currentTheme = components_3.Styles.Theme.currentTheme;
-    const pageSize = 25;
-    const options = {
+    exports.getEmbedderSchema = exports.getBuilderSchema = void 0;
+    ///<amd-module name='@scom/scom-table/formSchema.ts'/> 
+    const visualizationOptions = {
         type: 'object',
+        // title: 'Visualization Options',
         properties: {
             columns: {
                 type: 'array',
@@ -290,7 +290,274 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
             }
         }
     };
-    let ScomTable = class ScomTable extends components_3.Module {
+    function getBuilderSchema() {
+        return {
+            general: {
+                dataSchema: {
+                    type: 'object',
+                    required: ['title'],
+                    properties: {
+                        title: {
+                            type: 'string'
+                        },
+                        description: {
+                            type: 'string'
+                        }
+                    }
+                },
+                uiSchema: {
+                    type: 'VerticalLayout',
+                    elements: [
+                        // {
+                        //   type: 'Control',
+                        //   scope: '#/properties/apiEndpoint',
+                        //   title: 'API Endpoint'
+                        // },
+                        {
+                            type: 'Control',
+                            scope: '#/properties/title'
+                        },
+                        {
+                            type: 'Control',
+                            scope: '#/properties/description'
+                        },
+                        {
+                            type: 'Control',
+                            scope: '#/properties/options/properties/columns',
+                            options: {
+                                detail: {
+                                    type: 'VerticalLayout'
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            advanced: {
+                dataSchema: {
+                    type: 'object',
+                    properties: {
+                        options: visualizationOptions
+                    }
+                },
+                uiSchema: {
+                    type: 'VerticalLayout',
+                    elements: [
+                        {
+                            type: 'Control',
+                            scope: '#/properties/options/properties/columns',
+                            options: {
+                                detail: {
+                                    type: 'VerticalLayout'
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            theme: {
+                dataSchema: {
+                    type: 'object',
+                    properties: {
+                        darkShadow: {
+                            type: 'boolean'
+                        },
+                        fontColor: {
+                            type: 'string',
+                            format: 'color'
+                        },
+                        backgroundColor: {
+                            type: 'string',
+                            format: 'color'
+                        },
+                        progressBackgroundColor: {
+                            type: 'string',
+                            format: 'color'
+                        },
+                        footerBackgroundColor: {
+                            type: 'string',
+                            format: 'color'
+                        },
+                        footerFontColor: {
+                            type: 'string',
+                            format: 'color'
+                        },
+                        headerBackgroundColor: {
+                            type: 'string',
+                            format: 'color'
+                        },
+                        headerFontColor: {
+                            type: 'string',
+                            format: 'color'
+                        },
+                        paginationActiveBackgoundColor: {
+                            type: 'string',
+                            format: 'color'
+                        },
+                        paginationActiveFontColor: {
+                            type: 'string',
+                            format: 'color'
+                        },
+                        // width: {
+                        //   type: 'string'
+                        // },
+                        height: {
+                            type: 'string'
+                        }
+                    }
+                }
+            }
+        };
+    }
+    exports.getBuilderSchema = getBuilderSchema;
+    function getEmbedderSchema() {
+        return {
+            general: {
+                dataSchema: {
+                    type: 'object',
+                    required: ['title'],
+                    properties: {
+                        title: {
+                            type: 'string'
+                        },
+                        description: {
+                            type: 'string'
+                        }
+                    }
+                }
+            },
+            theme: {
+                dataSchema: {
+                    type: 'object',
+                    properties: {
+                        darkShadow: {
+                            type: 'boolean'
+                        },
+                        fontColor: {
+                            type: 'string',
+                            format: 'color'
+                        },
+                        backgroundColor: {
+                            type: 'string',
+                            format: 'color'
+                        },
+                        progressBackgroundColor: {
+                            type: 'string',
+                            format: 'color'
+                        },
+                        footerBackgroundColor: {
+                            type: 'string',
+                            format: 'color'
+                        },
+                        footerFontColor: {
+                            type: 'string',
+                            format: 'color'
+                        },
+                        headerBackgroundColor: {
+                            type: 'string',
+                            format: 'color'
+                        },
+                        headerFontColor: {
+                            type: 'string',
+                            format: 'color'
+                        },
+                        paginationActiveBackgoundColor: {
+                            type: 'string',
+                            format: 'color'
+                        },
+                        paginationActiveFontColor: {
+                            type: 'string',
+                            format: 'color'
+                        },
+                        // width: {
+                        //   type: 'string'
+                        // },
+                        height: {
+                            type: 'string'
+                        }
+                    }
+                }
+            }
+        };
+    }
+    exports.getEmbedderSchema = getEmbedderSchema;
+});
+define("@scom/scom-table/dataOptionsForm.tsx", ["require", "exports", "@ijstech/components"], function (require, exports, components_3) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    let ScomTableDataOptionsForm = class ScomTableDataOptionsForm extends components_3.Module {
+        constructor(parent, options) {
+            super(parent, options);
+        }
+        get data() {
+            return this._data;
+        }
+        set data(value) {
+            this._data = value;
+            this.renderUI();
+        }
+        async refreshFormData() {
+            this._data = await this.formEl.getFormData();
+            return this._data;
+        }
+        renderUI() {
+            this.formEl.clearInnerHTML();
+            this.formEl.jsonSchema = JSON.parse(this._dataSchema);
+            this.formEl.uiSchema = JSON.parse(this._uiSchema);
+            this.formEl.formOptions = {
+                columnWidth: '100%',
+                columnsPerRow: 1,
+                confirmButtonOptions: {
+                    hide: true
+                }
+            };
+            this.formEl.renderForm();
+            this.formEl.clearFormData();
+            this.formEl.setFormData(this._data);
+            const inputs = this.formEl.querySelectorAll('[scope]');
+            for (let input of inputs) {
+                const inputEl = input;
+                inputEl.onChanged = this.onInputChanged;
+            }
+        }
+        async onInputChanged() {
+            const data = await this.formEl.getFormData();
+            await this.onCustomInputChanged(data);
+        }
+        async onCustomInputChanged(data) {
+        }
+        async init() {
+            super.init();
+            this.onInputChanged = this.onInputChanged.bind(this);
+            const dataSchema = this.getAttribute('dataSchema', true);
+            this._dataSchema = dataSchema;
+            const uiSchema = this.getAttribute('uiSchema', true);
+            this._uiSchema = uiSchema;
+            const options = this.getAttribute('options', true, {});
+            this.data = {
+                options
+            };
+        }
+        render() {
+            return (this.$render("i-panel", null,
+                this.$render("i-vstack", { gap: '0.5rem' },
+                    this.$render("i-panel", { id: 'pnlForm' },
+                        this.$render("i-form", { id: 'formEl' })))));
+        }
+    };
+    ScomTableDataOptionsForm = __decorate([
+        components_3.customModule,
+        (0, components_3.customElements)('i-scom-table-data-options-form')
+    ], ScomTableDataOptionsForm);
+    exports.default = ScomTableDataOptionsForm;
+});
+define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/scom-table/global/index.ts", "@scom/scom-table/index.css.ts", "@scom/scom-table/assets.ts", "@scom/scom-table/data.json.ts", "@scom/scom-chart-data-source-setup", "@scom/scom-table/formSchema.ts", "@scom/scom-table/dataOptionsForm.tsx"], function (require, exports, components_4, index_1, index_css_1, assets_1, data_json_1, scom_chart_data_source_setup_1, formSchema_1, dataOptionsForm_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    const Theme = components_4.Styles.Theme.ThemeVars;
+    const currentTheme = components_4.Styles.Theme.currentTheme;
+    const pageSize = 25;
+    let ScomTable = class ScomTable extends components_4.Module {
         static async create(options, parent) {
             let self = new this(parent, options);
             await self.ready();
@@ -328,168 +595,112 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
             this.height = this.tag.height || 500;
             this.onUpdateBlock();
         }
-        getPropertiesSchema() {
-            const propertiesSchema = {
-                type: 'object',
-                properties: {
-                    // apiEndpoint: {
-                    //   type: 'string',
-                    //   title: 'API Endpoint',
-                    //   required: true
-                    // },
-                    title: {
-                        type: 'string',
-                        required: true
-                    },
-                    description: {
-                        type: 'string'
-                    },
-                    options
-                }
-            };
-            return propertiesSchema;
-        }
-        getGeneralSchema() {
-            const propertiesSchema = {
-                type: 'object',
-                required: ['title'],
-                properties: {
-                    // apiEndpoint: {
-                    //   type: 'string'
-                    // },
-                    title: {
-                        type: 'string'
-                    },
-                    description: {
-                        type: 'string'
-                    }
-                }
-            };
-            return propertiesSchema;
-        }
-        getAdvanceSchema() {
-            const propertiesSchema = {
-                type: 'object',
-                properties: {
-                    options
-                }
-            };
-            return propertiesSchema;
-        }
-        getThemeSchema() {
-            const themeSchema = {
-                type: 'object',
-                properties: {
-                    darkShadow: {
-                        type: 'boolean'
-                    },
-                    fontColor: {
-                        type: 'string',
-                        format: 'color'
-                    },
-                    backgroundColor: {
-                        type: 'string',
-                        format: 'color'
-                    },
-                    progressBackgroundColor: {
-                        type: 'string',
-                        format: 'color'
-                    },
-                    footerBackgroundColor: {
-                        type: 'string',
-                        format: 'color'
-                    },
-                    footerFontColor: {
-                        type: 'string',
-                        format: 'color'
-                    },
-                    headerBackgroundColor: {
-                        type: 'string',
-                        format: 'color'
-                    },
-                    headerFontColor: {
-                        type: 'string',
-                        format: 'color'
-                    },
-                    paginationActiveBackgoundColor: {
-                        type: 'string',
-                        format: 'color'
-                    },
-                    paginationActiveFontColor: {
-                        type: 'string',
-                        format: 'color'
-                    },
-                    // width: {
-                    //   type: 'string'
-                    // },
-                    height: {
-                        type: 'string'
-                    }
-                }
-            };
-            return themeSchema;
-        }
+        // private getPropertiesSchema() {
+        //   const propertiesSchema = {
+        //     type: 'object',
+        //     properties: {
+        //       // apiEndpoint: {
+        //       //   type: 'string',
+        //       //   title: 'API Endpoint',
+        //       //   required: true
+        //       // },
+        //       title: {
+        //         type: 'string',
+        //         required: true
+        //       },
+        //       description: {
+        //         type: 'string'
+        //       },
+        //       options
+        //     }
+        //   }
+        //   return propertiesSchema as any;
+        // }
+        // private getGeneralSchema() {
+        //   const propertiesSchema = {
+        //     type: 'object',
+        //     required: ['title'],
+        //     properties: {
+        //       // apiEndpoint: {
+        //       //   type: 'string'
+        //       // },
+        //       title: {
+        //         type: 'string'
+        //       },
+        //       description: {
+        //         type: 'string'
+        //       }
+        //     }
+        //   }
+        //   return propertiesSchema as IDataSchema;
+        // }
+        // private getAdvanceSchema() {
+        //   const propertiesSchema = {
+        //     type: 'object',
+        //     properties: {
+        //       options
+        //     }
+        //   };
+        //   return propertiesSchema as any;
+        // }
+        // private getThemeSchema() {
+        //   const themeSchema = {
+        //     type: 'object',
+        //     properties: {
+        //       darkShadow: {
+        //         type: 'boolean'
+        //       },
+        //       fontColor: {
+        //         type: 'string',
+        //         format: 'color'
+        //       },
+        //       backgroundColor: {
+        //         type: 'string',
+        //         format: 'color'
+        //       },
+        //       progressBackgroundColor: {
+        //         type: 'string',
+        //         format: 'color'
+        //       },
+        //       footerBackgroundColor: {
+        //         type: 'string',
+        //         format: 'color'
+        //       },
+        //       footerFontColor: {
+        //         type: 'string',
+        //         format: 'color'
+        //       },
+        //       headerBackgroundColor: {
+        //         type: 'string',
+        //         format: 'color'
+        //       },
+        //       headerFontColor: {
+        //         type: 'string',
+        //         format: 'color'
+        //       },
+        //       paginationActiveBackgoundColor: {
+        //         type: 'string',
+        //         format: 'color'
+        //       },
+        //       paginationActiveFontColor: {
+        //         type: 'string',
+        //         format: 'color'
+        //       },
+        //       // width: {
+        //       //   type: 'string'
+        //       // },
+        //       height: {
+        //         type: 'string'
+        //       }
+        //     }
+        //   }
+        //   return themeSchema as IDataSchema;
+        // }
         _getActions(propertiesSchema, themeSchema, advancedSchema) {
+            const builderSchema = (0, formSchema_1.getBuilderSchema)();
             const actions = [
                 {
-                    name: 'Data Source',
-                    icon: 'database',
-                    command: (builder, userInputData) => {
-                        let _oldData = { apiEndpoint: '', title: '', options: undefined, mode: scom_chart_data_source_setup_1.ModeType.LIVE };
-                        return {
-                            execute: async () => {
-                                _oldData = Object.assign({}, this._data);
-                                if (userInputData === null || userInputData === void 0 ? void 0 : userInputData.mode)
-                                    this._data.mode = userInputData === null || userInputData === void 0 ? void 0 : userInputData.mode;
-                                if (userInputData === null || userInputData === void 0 ? void 0 : userInputData.file)
-                                    this._data.file = userInputData === null || userInputData === void 0 ? void 0 : userInputData.file;
-                                if (userInputData === null || userInputData === void 0 ? void 0 : userInputData.apiEndpoint)
-                                    this._data.apiEndpoint = userInputData === null || userInputData === void 0 ? void 0 : userInputData.apiEndpoint;
-                                if (builder === null || builder === void 0 ? void 0 : builder.setData)
-                                    builder.setData(this._data);
-                                this.setData(this._data);
-                            },
-                            undo: () => {
-                                if (builder === null || builder === void 0 ? void 0 : builder.setData)
-                                    builder.setData(_oldData);
-                                this.setData(_oldData);
-                            },
-                            redo: () => { }
-                        };
-                    },
-                    customUI: {
-                        render: (data, onConfirm) => {
-                            const vstack = new components_3.VStack(null, { gap: '1rem' });
-                            const config = new scom_chart_data_source_setup_1.default(null, Object.assign(Object.assign({}, this._data), { chartData: JSON.stringify(this.tableData) }));
-                            const hstack = new components_3.HStack(null, {
-                                verticalAlignment: 'center',
-                                horizontalAlignment: 'end'
-                            });
-                            const button = new components_3.Button(null, {
-                                caption: 'Confirm',
-                                width: 'auto',
-                                height: 40,
-                                font: { color: Theme.colors.primary.contrastText }
-                            });
-                            hstack.append(button);
-                            vstack.append(config);
-                            vstack.append(hstack);
-                            button.onClick = async () => {
-                                const { apiEndpoint, file, mode } = config.data;
-                                if (mode === scom_chart_data_source_setup_1.ModeType.LIVE && !apiEndpoint)
-                                    return;
-                                if (mode === scom_chart_data_source_setup_1.ModeType.SNAPSHOT && !(file === null || file === void 0 ? void 0 : file.cid))
-                                    return;
-                                if (onConfirm) {
-                                    onConfirm(true, Object.assign(Object.assign({}, this._data), { apiEndpoint, file, mode }));
-                                }
-                            };
-                            return vstack;
-                        }
-                    }
-                },
-                {
-                    name: 'Settings',
+                    name: 'General',
                     icon: 'cog',
                     command: (builder, userInputData) => {
                         let _oldData = { apiEndpoint: '', title: '', options: undefined, mode: scom_chart_data_source_setup_1.ModeType.LIVE };
@@ -519,32 +730,84 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
                         };
                     },
                     userInputDataSchema: propertiesSchema,
-                    userInputUISchema: advancedSchema ? undefined : {
-                        type: 'VerticalLayout',
-                        elements: [
-                            // {
-                            //   type: 'Control',
-                            //   scope: '#/properties/apiEndpoint',
-                            //   title: 'API Endpoint'
-                            // },
-                            {
-                                type: 'Control',
-                                scope: '#/properties/title'
+                    userInputUISchema: advancedSchema ? undefined : builderSchema.general.uiSchema
+                },
+                {
+                    name: 'Data',
+                    icon: 'database',
+                    command: (builder, userInputData) => {
+                        let _oldData = { apiEndpoint: '', title: '', options: undefined, mode: scom_chart_data_source_setup_1.ModeType.LIVE };
+                        return {
+                            execute: async () => {
+                                _oldData = Object.assign({}, this._data);
+                                if (userInputData === null || userInputData === void 0 ? void 0 : userInputData.mode)
+                                    this._data.mode = userInputData === null || userInputData === void 0 ? void 0 : userInputData.mode;
+                                if (userInputData === null || userInputData === void 0 ? void 0 : userInputData.file)
+                                    this._data.file = userInputData === null || userInputData === void 0 ? void 0 : userInputData.file;
+                                if (userInputData === null || userInputData === void 0 ? void 0 : userInputData.apiEndpoint)
+                                    this._data.apiEndpoint = userInputData === null || userInputData === void 0 ? void 0 : userInputData.apiEndpoint;
+                                if ((userInputData === null || userInputData === void 0 ? void 0 : userInputData.options) !== undefined)
+                                    this._data.options = userInputData.options;
+                                if (builder === null || builder === void 0 ? void 0 : builder.setData)
+                                    builder.setData(this._data);
+                                this.setData(this._data);
                             },
-                            {
-                                type: 'Control',
-                                scope: '#/properties/description'
+                            undo: () => {
+                                if (builder === null || builder === void 0 ? void 0 : builder.setData)
+                                    builder.setData(_oldData);
+                                this.setData(_oldData);
                             },
-                            {
-                                type: 'Control',
-                                scope: '#/properties/options/properties/columns',
-                                options: {
-                                    detail: {
-                                        type: 'VerticalLayout'
-                                    }
-                                }
+                            redo: () => { }
+                        };
+                    },
+                    customUI: {
+                        render: (data, onConfirm, onChange) => {
+                            const vstack = new components_4.VStack(null, { gap: '1rem' });
+                            const dataSourceSetup = new scom_chart_data_source_setup_1.default(null, Object.assign(Object.assign({}, this._data), { chartData: JSON.stringify(this.tableData), onCustomDataChanged: async (data) => {
+                                    onChange(true, Object.assign(Object.assign({}, this._data), data));
+                                } }));
+                            const hstackBtnConfirm = new components_4.HStack(null, {
+                                verticalAlignment: 'center',
+                                horizontalAlignment: 'end'
+                            });
+                            const button = new components_4.Button(null, {
+                                caption: 'Confirm',
+                                width: 'auto',
+                                height: 40,
+                                font: { color: Theme.colors.primary.contrastText }
+                            });
+                            hstackBtnConfirm.append(button);
+                            vstack.append(dataSourceSetup);
+                            const dataOptionsForm = new dataOptionsForm_1.default(null, {
+                                options: this._data.options,
+                                dataSchema: JSON.stringify(advancedSchema),
+                                uiSchema: JSON.stringify(builderSchema.advanced.uiSchema)
+                            });
+                            vstack.append(dataOptionsForm);
+                            vstack.append(hstackBtnConfirm);
+                            if (onChange) {
+                                dataOptionsForm.onCustomInputChanged = async (optionsFormData) => {
+                                    const { apiEndpoint, file, mode } = dataSourceSetup.data;
+                                    onChange(true, Object.assign(Object.assign(Object.assign({}, this._data), optionsFormData), { apiEndpoint,
+                                        file,
+                                        mode }));
+                                };
                             }
-                        ]
+                            button.onClick = async () => {
+                                const { apiEndpoint, file, mode } = dataSourceSetup.data;
+                                if (mode === scom_chart_data_source_setup_1.ModeType.LIVE && !apiEndpoint)
+                                    return;
+                                if (mode === scom_chart_data_source_setup_1.ModeType.SNAPSHOT && !(file === null || file === void 0 ? void 0 : file.cid))
+                                    return;
+                                if (onConfirm) {
+                                    const optionsFormData = await dataOptionsForm.refreshFormData();
+                                    onConfirm(true, Object.assign(Object.assign(Object.assign({}, this._data), optionsFormData), { apiEndpoint,
+                                        file,
+                                        mode }));
+                                }
+                            };
+                            return vstack;
+                        }
                     }
                 },
                 {
@@ -603,20 +866,7 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
                         };
                     },
                     userInputDataSchema: advancedSchema,
-                    userInputUISchema: {
-                        type: 'VerticalLayout',
-                        elements: [
-                            {
-                                type: 'Control',
-                                scope: '#/properties/options/properties/columns',
-                                options: {
-                                    detail: {
-                                        type: 'VerticalLayout'
-                                    }
-                                }
-                            }
-                        ]
-                    }
+                    userInputUISchema: builderSchema.advanced.uiSchema
                 };
                 actions.push(advanced);
             }
@@ -629,7 +879,11 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
                     name: 'Builder Configurator',
                     target: 'Builders',
                     getActions: () => {
-                        return this._getActions(this.getGeneralSchema(), this.getThemeSchema(), this.getAdvanceSchema());
+                        const builderSchema = (0, formSchema_1.getBuilderSchema)();
+                        const generalSchema = builderSchema.general.dataSchema;
+                        const themeSchema = builderSchema.theme.dataSchema;
+                        const advancedSchema = builderSchema.advanced.dataSchema;
+                        return this._getActions(generalSchema, themeSchema, advancedSchema);
                     },
                     getData: this.getData.bind(this),
                     setData: async (data) => {
@@ -643,7 +897,10 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
                     name: 'Emdedder Configurator',
                     target: 'Embedders',
                     getActions: () => {
-                        return this._getActions(this.getPropertiesSchema(), this.getThemeSchema());
+                        const embedderSchema = (0, formSchema_1.getEmbedderSchema)();
+                        const generalSchema = embedderSchema.general.dataSchema;
+                        const themeSchema = embedderSchema.theme.dataSchema;
+                        return this._getActions(generalSchema, themeSchema);
                     },
                     getLinkParams: () => {
                         const data = this._data || {};
@@ -785,14 +1042,14 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
                         textAlign: alignContent,
                         onRenderCell: function (source, data, rowData) {
                             const isNumber = typeof data === 'number';
-                            const hStack = new components_3.HStack(undefined, {
+                            const hStack = new components_4.HStack(undefined, {
                                 width: '100%',
                                 gap: 5,
                                 wrap: type === 'progressbar' ? undefined : 'wrap',
                                 verticalAlignment: 'center'
                             });
                             if (type === 'progressbar') {
-                                new components_3.Progress(hStack, {
+                                new components_4.Progress(hStack, {
                                     width: 60,
                                     height: 8,
                                     strokeWidth: 8,
@@ -800,7 +1057,7 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
                                     percent: (data / totalValue) * 100
                                 });
                             }
-                            new components_3.Label(hStack, {
+                            new components_4.Label(hStack, {
                                 caption: isNumber && numberFormat ? (0, index_1.formatNumberByFormat)(data, numberFormat, true) :
                                     isNumber ? (0, index_1.formatNumberWithSeparators)(data) : data,
                                 font: {
@@ -901,11 +1158,11 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
         }
     };
     __decorate([
-        (0, components_3.observable)()
+        (0, components_4.observable)()
     ], ScomTable.prototype, "totalPage", void 0);
     ScomTable = __decorate([
-        components_3.customModule,
-        (0, components_3.customElements)('i-scom-table')
+        components_4.customModule,
+        (0, components_4.customElements)('i-scom-table')
     ], ScomTable);
     exports.default = ScomTable;
 });
