@@ -14,7 +14,8 @@ export interface ITableOptions {
 }
 
 export interface ITableConfig {
-  apiEndpoint: string,
+  dataSource: string;
+  queryId: string;
   title: string,
   description?: string,
   options: ITableOptions,

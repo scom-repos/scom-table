@@ -14,7 +14,8 @@ declare module "@scom/scom-table/global/interfaces.ts" {
         }[];
     }
     export interface ITableConfig {
-        apiEndpoint: string;
+        dataSource: string;
+        queryId: string;
         title: string;
         description?: string;
         options: ITableOptions;
@@ -34,7 +35,7 @@ declare module "@scom/scom-table/global/utils.ts" {
     }) => any;
     export const formatNumberByFormat: (num: number, format: string, separators?: boolean) => any;
     export const formatNumberWithSeparators: (value: number, precision?: number) => string;
-    export const callAPI: (apiEndpoint: string) => Promise<any>;
+    export const callAPI: (dataSource: string, queryId: string) => Promise<any>;
 }
 /// <amd-module name="@scom/scom-table/global/index.ts" />
 declare module "@scom/scom-table/global/index.ts" {
@@ -74,7 +75,8 @@ declare module "@scom/scom-table/assets.ts" {
 declare module "@scom/scom-table/data.json.ts" {
     const _default_1: {
         defaultBuilderData: {
-            apiEndpoint: string;
+            dataSource: string;
+            queryId: string;
             title: string;
             options: {
                 columns: ({

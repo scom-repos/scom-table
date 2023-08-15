@@ -1,6 +1,8 @@
 export default {
   "defaultBuilderData": {
-    "apiEndpoint": "/dune/query/2030664",
+    // "apiEndpoint": "/dune/query/2030664",
+    "dataSource": "Dune",
+    "queryId": "2030664",
     "title": "Ethereum Beacon Chain Deposits Entity",
     "options": {
       "columns": [
