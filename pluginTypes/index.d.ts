@@ -137,6 +137,7 @@ declare module "@scom/scom-table/formSchema.ts" {
                 properties: {
                     options: {
                         type: string;
+                        title: string;
                         properties: {
                             columns: {
                                 type: string;
@@ -176,12 +177,15 @@ declare module "@scom/scom-table/formSchema.ts" {
                 type: string;
                 elements: {
                     type: string;
-                    scope: string;
-                    options: {
-                        detail: {
-                            type: string;
+                    elements: {
+                        type: string;
+                        scope: string;
+                        options: {
+                            detail: {
+                                type: string;
+                            };
                         };
-                    };
+                    }[];
                 }[];
             };
         };

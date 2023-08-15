@@ -249,7 +249,7 @@ define("@scom/scom-table/formSchema.ts", ["require", "exports"], function (requi
     ///<amd-module name='@scom/scom-table/formSchema.ts'/> 
     const visualizationOptions = {
         type: 'object',
-        // title: 'Visualization Options',
+        title: 'Visualization Options',
         properties: {
             columns: {
                 type: 'array',
@@ -344,13 +344,18 @@ define("@scom/scom-table/formSchema.ts", ["require", "exports"], function (requi
                     type: 'VerticalLayout',
                     elements: [
                         {
-                            type: 'Control',
-                            scope: '#/properties/options/properties/columns',
-                            options: {
-                                detail: {
-                                    type: 'VerticalLayout'
+                            type: "HorizontalLayout",
+                            elements: [
+                                {
+                                    type: "Control",
+                                    scope: '#/properties/options/properties/columns',
+                                    options: {
+                                        detail: {
+                                            type: "VerticalLayout"
+                                        }
+                                    }
                                 }
-                            }
+                            ]
                         }
                     ]
                 }
@@ -840,36 +845,32 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
                     userInputDataSchema: themeSchema
                 }
             ];
-            if (advancedSchema) {
-                const advanced = {
-                    name: 'Advanced',
-                    icon: 'sliders-h',
-                    command: (builder, userInputData) => {
-                        let _oldData = { columns: [] };
-                        return {
-                            execute: async () => {
-                                var _a;
-                                _oldData = Object.assign({}, (_a = this._data) === null || _a === void 0 ? void 0 : _a.options);
-                                if ((userInputData === null || userInputData === void 0 ? void 0 : userInputData.options) !== undefined)
-                                    this._data.options = userInputData.options;
-                                if (builder === null || builder === void 0 ? void 0 : builder.setData)
-                                    builder.setData(this._data);
-                                this.setData(this._data);
-                            },
-                            undo: () => {
-                                this._data.options = Object.assign({}, _oldData);
-                                if (builder === null || builder === void 0 ? void 0 : builder.setData)
-                                    builder.setData(this._data);
-                                this.setData(this._data);
-                            },
-                            redo: () => { }
-                        };
-                    },
-                    userInputDataSchema: advancedSchema,
-                    userInputUISchema: builderSchema.advanced.uiSchema
-                };
-                actions.push(advanced);
-            }
+            // if (advancedSchema) {
+            //   const advanced = {
+            //     name: 'Advanced',
+            //     icon: 'sliders-h',
+            //     command: (builder: any, userInputData: any) => {
+            //       let _oldData: ITableOptions = { columns: [] };
+            //       return {
+            //         execute: async () => {
+            //           _oldData = { ...this._data?.options };
+            //           if (userInputData?.options !== undefined) this._data.options = userInputData.options;
+            //           if (builder?.setData) builder.setData(this._data);
+            //           this.setData(this._data);
+            //         },
+            //         undo: () => {
+            //           this._data.options = { ..._oldData };
+            //           if (builder?.setData) builder.setData(this._data);
+            //           this.setData(this._data);
+            //         },
+            //         redo: () => { }
+            //       }
+            //     },
+            //     userInputDataSchema: advancedSchema,
+            //     userInputUISchema: builderSchema.advanced.uiSchema as any
+            //   }
+            //   actions.push(advanced);
+            // }
             return actions;
         }
         getConfigurators() {

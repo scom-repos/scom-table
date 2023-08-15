@@ -1,6 +1,6 @@
 const visualizationOptions = {
     type: 'object',
-    // title: 'Visualization Options',
+    title: 'Visualization Options',
     properties: {
         columns: {
             type: 'array',
@@ -96,13 +96,18 @@ export function getBuilderSchema() {
                 type: 'VerticalLayout',
                 elements: [
                     {
-                        type: 'Control',
-                        scope: '#/properties/options/properties/columns',
-                        options: {
-                            detail: {
-                                type: 'VerticalLayout'
+                        type: "HorizontalLayout",
+                        elements: [
+                            {
+                                type: "Control",
+                                scope: '#/properties/options/properties/columns',
+                                options: {
+                                    detail: {
+                                        type: "VerticalLayout"
+                                    }
+                                }
                             }
-                        }
+                        ]
                     }
                 ]
             }
