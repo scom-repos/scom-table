@@ -43,6 +43,14 @@ declare global {
   }
 }
 
+const DefaultData: ITableConfig = {
+  dataSource: DataSource.Dune, 
+  queryId: '', 
+  title: '', 
+  options: undefined, 
+  mode: ModeType.LIVE 
+};
+
 @customModule
 @customElements('i-scom-table')
 export default class ScomTable extends Module {
@@ -65,13 +73,7 @@ export default class ScomTable extends Module {
   private itemStart = 0;
   private itemEnd = pageSize;
 
-  private _data: ITableConfig = { 
-    dataSource: DataSource.Dune, 
-    queryId: '',
-    title: '', 
-    options: undefined, 
-    mode: ModeType.LIVE 
-  };
+  private _data: ITableConfig = DefaultData;
   tag: any = {};
   defaultEdit: boolean = true;
   readonly onConfirm: () => Promise<void>;
@@ -120,13 +122,7 @@ export default class ScomTable extends Module {
         name: 'General',
         icon: 'cog',
         command: (builder: any, userInputData: any) => {
-          let _oldData: ITableConfig = { 
-            dataSource: DataSource.Dune, 
-            queryId: '',
-            title: '', 
-            options: undefined, 
-            mode: ModeType.LIVE 
-          };
+          let _oldData: ITableConfig = DefaultData;
           return {
             execute: async () => {
               _oldData = { ...this._data };
@@ -155,13 +151,7 @@ export default class ScomTable extends Module {
         name: 'Data',
         icon: 'database',
         command: (builder: any, userInputData: any) => {
-          let _oldData: ITableConfig = { 
-            dataSource: DataSource.Dune, 
-            queryId: '',
-            title: '', 
-            options: undefined,  
-            mode: ModeType.LIVE 
-          };
+          let _oldData: ITableConfig = DefaultData;
           return {
             execute: async () => {
               _oldData = { ...this._data };
@@ -186,11 +176,13 @@ export default class ScomTable extends Module {
             const dataSourceSetup = new ScomChartDataSourceSetup(null, {
               ...this._data, 
               chartData: JSON.stringify(this.tableData),
-              onCustomDataChanged: async (data: any) => {
-                onChange(true, {
-                  ...this._data, 
-                  ...data
-                });
+              onCustomDataChanged: async (dataSourceSetupData: any) => {
+                if (onChange) {
+                  onChange(true, {
+                    ...this._data, 
+                    ...dataSourceSetupData
+                  });
+                }
               }
             });
             const hstackBtnConfirm = new HStack(null, {

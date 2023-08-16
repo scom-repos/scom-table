@@ -571,6 +571,13 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
     const Theme = components_4.Styles.Theme.ThemeVars;
     const currentTheme = components_4.Styles.Theme.currentTheme;
     const pageSize = 25;
+    const DefaultData = {
+        dataSource: scom_chart_data_source_setup_2.DataSource.Dune,
+        queryId: '',
+        title: '',
+        options: undefined,
+        mode: scom_chart_data_source_setup_2.ModeType.LIVE
+    };
     let ScomTable = class ScomTable extends components_4.Module {
         static async create(options, parent) {
             let self = new this(parent, options);
@@ -584,13 +591,7 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
             this.pageNumber = 0;
             this.itemStart = 0;
             this.itemEnd = pageSize;
-            this._data = {
-                dataSource: scom_chart_data_source_setup_2.DataSource.Dune,
-                queryId: '',
-                title: '',
-                options: undefined,
-                mode: scom_chart_data_source_setup_2.ModeType.LIVE
-            };
+            this._data = DefaultData;
             this.tag = {};
             this.defaultEdit = true;
         }
@@ -622,13 +623,7 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
                     name: 'General',
                     icon: 'cog',
                     command: (builder, userInputData) => {
-                        let _oldData = {
-                            dataSource: scom_chart_data_source_setup_2.DataSource.Dune,
-                            queryId: '',
-                            title: '',
-                            options: undefined,
-                            mode: scom_chart_data_source_setup_2.ModeType.LIVE
-                        };
+                        let _oldData = DefaultData;
                         return {
                             execute: async () => {
                                 _oldData = Object.assign({}, this._data);
@@ -661,13 +656,7 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
                     name: 'Data',
                     icon: 'database',
                     command: (builder, userInputData) => {
-                        let _oldData = {
-                            dataSource: scom_chart_data_source_setup_2.DataSource.Dune,
-                            queryId: '',
-                            title: '',
-                            options: undefined,
-                            mode: scom_chart_data_source_setup_2.ModeType.LIVE
-                        };
+                        let _oldData = DefaultData;
                         return {
                             execute: async () => {
                                 _oldData = Object.assign({}, this._data);
@@ -696,8 +685,10 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
                     customUI: {
                         render: (data, onConfirm, onChange) => {
                             const vstack = new components_4.VStack(null, { gap: '1rem' });
-                            const dataSourceSetup = new scom_chart_data_source_setup_2.default(null, Object.assign(Object.assign({}, this._data), { chartData: JSON.stringify(this.tableData), onCustomDataChanged: async (data) => {
-                                    onChange(true, Object.assign(Object.assign({}, this._data), data));
+                            const dataSourceSetup = new scom_chart_data_source_setup_2.default(null, Object.assign(Object.assign({}, this._data), { chartData: JSON.stringify(this.tableData), onCustomDataChanged: async (dataSourceSetupData) => {
+                                    if (onChange) {
+                                        onChange(true, Object.assign(Object.assign({}, this._data), dataSourceSetupData));
+                                    }
                                 } }));
                             const hstackBtnConfirm = new components_4.HStack(null, {
                                 verticalAlignment: 'center',
