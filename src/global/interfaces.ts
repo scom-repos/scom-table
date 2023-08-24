@@ -15,7 +15,8 @@ export interface ITableOptions {
 
 export interface ITableConfig {
   dataSource: string;
-  queryId: string;
+  queryId?: string;
+  apiEndpoint?: string;
   title: string,
   description?: string,
   options: ITableOptions,
@@ -24,4 +25,10 @@ export interface ITableConfig {
     name: string
   },
   mode: ModeType
+}
+
+export interface IFetchDataOptions {
+  dataSource: string;
+  queryId?: string;
+  apiEndpoint?: string;
 }
