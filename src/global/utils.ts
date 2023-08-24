@@ -1,4 +1,5 @@
 import { DataSource } from "@scom/scom-chart-data-source-setup";
+import { IFetchDataOptions } from "./interfaces";
 
 export const formatNumber = (num: number, options?: { format?: string, decimals?: number, percentValues?: boolean }) => {
   if (num === null) return '-';
@@ -61,21 +62,22 @@ export const formatNumberWithSeparators = (value: number, precision?: number) =>
   return value.toLocaleString('en-US');
 }
 
-export const callAPI = async (dataSource: string, queryId: string) => {
-  if (!dataSource) return [];
+export const callAPI = async (options: IFetchDataOptions) => {
+  if (!options.dataSource) return [];
   try {
     let apiEndpoint = '';
-    switch (dataSource) {
+    switch (options.dataSource) {
       case DataSource.Dune:
-        apiEndpoint = `/dune/query/${queryId}`;
+        apiEndpoint = `/dune/query/${options.queryId}`;
+        break;
+      case DataSource.Custom:
+        apiEndpoint = options.apiEndpoint;
         break;
     }
     if (!apiEndpoint) return [];
     const response = await fetch(apiEndpoint);
-    const jsonData = await response.json(); 
+    const jsonData = await response.json();
     return jsonData.result.rows || [];
-  } catch (error) {
-    console.log(error);
-  }
+  } catch { }
   return [];
 }
