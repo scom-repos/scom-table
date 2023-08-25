@@ -1,3 +1,4 @@
+import { BigNumber } from "@ijstech/eth-wallet";
 import { ModeType } from "@scom/scom-chart-data-source-setup"
 
 export interface ITableOptions {
@@ -25,6 +26,11 @@ export interface ITableConfig {
     name: string
   },
   mode: ModeType
+}
+
+export interface IFormatNumberOptions {
+  precision?: number;
+  roundingMode?: BigNumber.RoundingMode;
 }
 
 export interface IFetchDataOptions {
