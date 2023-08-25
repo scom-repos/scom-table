@@ -1,5 +1,6 @@
 /// <amd-module name="@scom/scom-table/global/interfaces.ts" />
 declare module "@scom/scom-table/global/interfaces.ts" {
+    import { BigNumber } from "@ijstech/eth-wallet";
     import { ModeType } from "@scom/scom-chart-data-source-setup";
     export interface ITableOptions {
         columns: {
@@ -26,6 +27,10 @@ declare module "@scom/scom-table/global/interfaces.ts" {
         };
         mode: ModeType;
     }
+    export interface IFormatNumberOptions {
+        precision?: number;
+        roundingMode?: BigNumber.RoundingMode;
+    }
     export interface IFetchDataOptions {
         dataSource: string;
         queryId?: string;
@@ -34,14 +39,16 @@ declare module "@scom/scom-table/global/interfaces.ts" {
 }
 /// <amd-module name="@scom/scom-table/global/utils.ts" />
 declare module "@scom/scom-table/global/utils.ts" {
-    import { IFetchDataOptions } from "@scom/scom-table/global/interfaces.ts";
+    import { BigNumber } from '@ijstech/eth-wallet';
+    import { IFormatNumberOptions, IFetchDataOptions } from "@scom/scom-table/global/interfaces.ts";
+    export const isNumeric: (value: string | number | BigNumber) => boolean;
     export const formatNumber: (num: number, options?: {
         format?: string;
         decimals?: number;
         percentValues?: boolean;
     }) => any;
     export const formatNumberByFormat: (num: number, format: string, separators?: boolean) => any;
-    export const formatNumberWithSeparators: (value: number, precision?: number) => string;
+    export const formatNumberWithSeparators: (value: number | string | BigNumber, options: IFormatNumberOptions) => string;
     export const callAPI: (options: IFetchDataOptions) => Promise<any>;
 }
 /// <amd-module name="@scom/scom-table/global/index.ts" />

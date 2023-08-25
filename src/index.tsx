@@ -18,7 +18,7 @@ import {
   observable,
   Button
 } from '@ijstech/components';
-import { ITableConfig, formatNumberWithSeparators, callAPI, formatNumberByFormat, ITableOptions } from './global/index';
+import { ITableConfig, formatNumberWithSeparators, callAPI, formatNumberByFormat, ITableOptions, isNumeric } from './global/index';
 import { containerStyle, tableStyle } from './index.css';
 import assets from './assets';
 import dataJson from './data.json';
@@ -461,7 +461,7 @@ export default class ScomTable extends Module {
           fieldName: name,
           textAlign: alignContent,
           onRenderCell: function (source: Control, data: any, rowData: any) {
-            const isNumber = typeof data === 'number';
+            const isNumber = isNumeric(data);
             const hStack = new HStack(undefined, {
               width: '100%',
               gap: 5,
@@ -479,7 +479,7 @@ export default class ScomTable extends Module {
             }
             new Label(hStack, {
               caption: isNumber && numberFormat ? formatNumberByFormat(data, numberFormat, true) :
-                isNumber ? formatNumberWithSeparators(data) : data,
+                isNumber ? formatNumberWithSeparators(data, { precision: 0 }) : data,
               font: {
                 size: '12px',
                 color: Theme.text.primary
