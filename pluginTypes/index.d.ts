@@ -101,35 +101,94 @@ declare module "@scom/scom-table/data.json.ts" {
 /// <amd-module name="@scom/scom-table/formSchema.ts" />
 declare module "@scom/scom-table/formSchema.ts" {
     export function getBuilderSchema(): {
-        general: {
-            dataSchema: {
-                type: string;
-                required: string[];
-                properties: {
-                    title: {
-                        type: string;
-                    };
-                    description: {
-                        type: string;
-                    };
+        dataSchema: {
+            type: string;
+            required: string[];
+            properties: {
+                darkShadow: {
+                    type: string;
+                };
+                fontColor: {
+                    type: string;
+                    format: string;
+                };
+                backgroundColor: {
+                    type: string;
+                    format: string;
+                };
+                progressBackgroundColor: {
+                    type: string;
+                    format: string;
+                };
+                headerBackgroundColor: {
+                    type: string;
+                    format: string;
+                };
+                headerFontColor: {
+                    type: string;
+                    format: string;
+                };
+                footerBackgroundColor: {
+                    type: string;
+                    format: string;
+                };
+                footerFontColor: {
+                    type: string;
+                    format: string;
+                };
+                paginationActiveBackgoundColor: {
+                    type: string;
+                    format: string;
+                };
+                paginationActiveFontColor: {
+                    type: string;
+                    format: string;
+                };
+                height: {
+                    type: string;
+                };
+                title: {
+                    type: string;
+                };
+                description: {
+                    type: string;
                 };
             };
-            uiSchema: {
+        };
+        uiSchema: {
+            type: string;
+            elements: {
                 type: string;
-                elements: ({
+                label: string;
+                elements: {
                     type: string;
-                    scope: string;
-                    options?: undefined;
-                } | {
-                    type: string;
-                    scope: string;
-                    options: {
-                        detail: {
+                    elements: ({
+                        type: string;
+                        scope: string;
+                        elements?: undefined;
+                        label?: undefined;
+                    } | {
+                        type: string;
+                        elements: {
                             type: string;
-                        };
-                    };
-                })[];
-            };
+                            scope: string;
+                        }[];
+                        scope?: undefined;
+                        label?: undefined;
+                    } | {
+                        type: string;
+                        label: string;
+                        elements: {
+                            type: string;
+                            elements: {
+                                type: string;
+                                scope: string;
+                            }[];
+                        }[];
+                        scope?: undefined;
+                    })[];
+                }[];
+            }[];
         };
         advanced: {
             dataSchema: {
@@ -189,119 +248,96 @@ declare module "@scom/scom-table/formSchema.ts" {
                 }[];
             };
         };
-        theme: {
-            dataSchema: {
-                type: string;
-                properties: {
-                    darkShadow: {
-                        type: string;
-                    };
-                    fontColor: {
-                        type: string;
-                        format: string;
-                    };
-                    backgroundColor: {
-                        type: string;
-                        format: string;
-                    };
-                    progressBackgroundColor: {
-                        type: string;
-                        format: string;
-                    };
-                    footerBackgroundColor: {
-                        type: string;
-                        format: string;
-                    };
-                    footerFontColor: {
-                        type: string;
-                        format: string;
-                    };
-                    headerBackgroundColor: {
-                        type: string;
-                        format: string;
-                    };
-                    headerFontColor: {
-                        type: string;
-                        format: string;
-                    };
-                    paginationActiveBackgoundColor: {
-                        type: string;
-                        format: string;
-                    };
-                    paginationActiveFontColor: {
-                        type: string;
-                        format: string;
-                    };
-                    height: {
-                        type: string;
-                    };
-                };
-            };
-        };
     };
     export function getEmbedderSchema(): {
-        general: {
-            dataSchema: {
-                type: string;
-                required: string[];
-                properties: {
-                    title: {
-                        type: string;
-                    };
-                    description: {
-                        type: string;
-                    };
+        dataSchema: {
+            type: string;
+            required: string[];
+            properties: {
+                darkShadow: {
+                    type: string;
+                };
+                fontColor: {
+                    type: string;
+                    format: string;
+                };
+                backgroundColor: {
+                    type: string;
+                    format: string;
+                };
+                progressBackgroundColor: {
+                    type: string;
+                    format: string;
+                };
+                headerBackgroundColor: {
+                    type: string;
+                    format: string;
+                };
+                headerFontColor: {
+                    type: string;
+                    format: string;
+                };
+                footerBackgroundColor: {
+                    type: string;
+                    format: string;
+                };
+                footerFontColor: {
+                    type: string;
+                    format: string;
+                };
+                paginationActiveBackgoundColor: {
+                    type: string;
+                    format: string;
+                };
+                paginationActiveFontColor: {
+                    type: string;
+                    format: string;
+                };
+                height: {
+                    type: string;
+                };
+                title: {
+                    type: string;
+                };
+                description: {
+                    type: string;
                 };
             };
         };
-        theme: {
-            dataSchema: {
+        uiSchema: {
+            type: string;
+            elements: {
                 type: string;
-                properties: {
-                    darkShadow: {
+                label: string;
+                elements: {
+                    type: string;
+                    elements: ({
                         type: string;
-                    };
-                    fontColor: {
+                        scope: string;
+                        elements?: undefined;
+                        label?: undefined;
+                    } | {
                         type: string;
-                        format: string;
-                    };
-                    backgroundColor: {
+                        elements: {
+                            type: string;
+                            scope: string;
+                        }[];
+                        scope?: undefined;
+                        label?: undefined;
+                    } | {
                         type: string;
-                        format: string;
-                    };
-                    progressBackgroundColor: {
-                        type: string;
-                        format: string;
-                    };
-                    footerBackgroundColor: {
-                        type: string;
-                        format: string;
-                    };
-                    footerFontColor: {
-                        type: string;
-                        format: string;
-                    };
-                    headerBackgroundColor: {
-                        type: string;
-                        format: string;
-                    };
-                    headerFontColor: {
-                        type: string;
-                        format: string;
-                    };
-                    paginationActiveBackgoundColor: {
-                        type: string;
-                        format: string;
-                    };
-                    paginationActiveFontColor: {
-                        type: string;
-                        format: string;
-                    };
-                    height: {
-                        type: string;
-                    };
-                };
-            };
+                        label: string;
+                        elements: {
+                            type: string;
+                            elements: {
+                                type: string;
+                                scope: string;
+                            }[];
+                        }[];
+                        scope?: undefined;
+                    })[];
+                }[];
+            }[];
         };
     };
 }
@@ -341,7 +377,7 @@ declare module "@scom/scom-table/dataOptionsForm.tsx" {
 }
 /// <amd-module name="@scom/scom-table" />
 declare module "@scom/scom-table" {
-    import { Module, ControlElement, Container, IDataSchema, VStack } from '@ijstech/components';
+    import { Module, ControlElement, Container, IDataSchema, VStack, IUISchema } from '@ijstech/components';
     import { ITableConfig } from "@scom/scom-table/global/index.ts";
     interface ScomTableElement extends ControlElement {
         lazyLoad?: boolean;
@@ -374,9 +410,6 @@ declare module "@scom/scom-table" {
         private _data;
         tag: any;
         defaultEdit: boolean;
-        readonly onConfirm: () => Promise<void>;
-        readonly onDiscard: () => Promise<void>;
-        readonly onEdit: () => Promise<void>;
         static create(options?: ScomTableElement, parent?: Container): Promise<ScomTable>;
         constructor(parent?: Container, options?: ScomTableElement);
         private getData;
@@ -396,22 +429,7 @@ declare module "@scom/scom-table" {
                     redo: () => void;
                 };
                 userInputDataSchema: IDataSchema;
-                userInputUISchema: {
-                    type: string;
-                    elements: ({
-                        type: string;
-                        scope: string;
-                        options?: undefined;
-                    } | {
-                        type: string;
-                        scope: string;
-                        options: {
-                            detail: {
-                                type: string;
-                            };
-                        };
-                    })[];
-                };
+                userInputUISchema: IUISchema;
                 customUI?: undefined;
             } | {
                 name: string;
@@ -426,17 +444,6 @@ declare module "@scom/scom-table" {
                 };
                 userInputDataSchema?: undefined;
                 userInputUISchema?: undefined;
-            } | {
-                name: string;
-                icon: string;
-                command: (builder: any, userInputData: any) => {
-                    execute: () => Promise<void>;
-                    undo: () => void;
-                    redo: () => void;
-                };
-                userInputDataSchema: IDataSchema;
-                userInputUISchema?: undefined;
-                customUI?: undefined;
             })[];
             getData: any;
             setData: (data: ITableConfig) => Promise<void>;
@@ -456,22 +463,7 @@ declare module "@scom/scom-table" {
                     redo: () => void;
                 };
                 userInputDataSchema: IDataSchema;
-                userInputUISchema: {
-                    type: string;
-                    elements: ({
-                        type: string;
-                        scope: string;
-                        options?: undefined;
-                    } | {
-                        type: string;
-                        scope: string;
-                        options: {
-                            detail: {
-                                type: string;
-                            };
-                        };
-                    })[];
-                };
+                userInputUISchema: IUISchema;
                 customUI?: undefined;
             } | {
                 name: string;
@@ -486,17 +478,6 @@ declare module "@scom/scom-table" {
                 };
                 userInputDataSchema?: undefined;
                 userInputUISchema?: undefined;
-            } | {
-                name: string;
-                icon: string;
-                command: (builder: any, userInputData: any) => {
-                    execute: () => Promise<void>;
-                    undo: () => void;
-                    redo: () => void;
-                };
-                userInputDataSchema: IDataSchema;
-                userInputUISchema?: undefined;
-                customUI?: undefined;
             })[];
             getLinkParams: () => {
                 data: string;
