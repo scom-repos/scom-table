@@ -31,16 +31,11 @@ declare module "@scom/scom-table/global/interfaces.ts" {
         precision?: number;
         roundingMode?: BigNumber.RoundingMode;
     }
-    export interface IFetchDataOptions {
-        dataSource: string;
-        queryId?: string;
-        apiEndpoint?: string;
-    }
 }
 /// <amd-module name="@scom/scom-table/global/utils.ts" />
 declare module "@scom/scom-table/global/utils.ts" {
     import { BigNumber } from '@ijstech/eth-wallet';
-    import { IFormatNumberOptions, IFetchDataOptions } from "@scom/scom-table/global/interfaces.ts";
+    import { IFormatNumberOptions } from "@scom/scom-table/global/interfaces.ts";
     export const isNumeric: (value: string | number | BigNumber) => boolean;
     export const formatNumber: (num: number, options?: {
         format?: string;
@@ -49,7 +44,6 @@ declare module "@scom/scom-table/global/utils.ts" {
     }) => any;
     export const formatNumberByFormat: (num: number, format: string, separators?: boolean) => any;
     export const formatNumberWithSeparators: (value: number | string | BigNumber, options: IFormatNumberOptions) => string;
-    export const callAPI: (options: IFetchDataOptions) => Promise<any>;
 }
 /// <amd-module name="@scom/scom-table/global/index.ts" />
 declare module "@scom/scom-table/global/index.ts" {
@@ -100,7 +94,7 @@ declare module "@scom/scom-table/data.json.ts" {
 }
 /// <amd-module name="@scom/scom-table/formSchema.ts" />
 declare module "@scom/scom-table/formSchema.ts" {
-    export function getBuilderSchema(): {
+    export function getBuilderSchema(columns: string[]): {
         dataSchema: {
             type: string;
             required: string[];
@@ -206,6 +200,7 @@ declare module "@scom/scom-table/formSchema.ts" {
                                     properties: {
                                         name: {
                                             type: string;
+                                            enum: string[];
                                             required: boolean;
                                         };
                                         title: {
@@ -399,6 +394,7 @@ declare module "@scom/scom-table" {
         private lbDescription;
         private pnlTable;
         private tableElm;
+        private columnNames;
         private tableData;
         private paginationElm;
         private lbTotal;
