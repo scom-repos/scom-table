@@ -33,10 +33,10 @@ define("@scom/scom-table/global/interfaces.ts", ["require", "exports"], function
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
 });
-define("@scom/scom-table/global/utils.ts", ["require", "exports", "@scom/scom-chart-data-source-setup", "@ijstech/eth-wallet"], function (require, exports, scom_chart_data_source_setup_1, eth_wallet_1) {
+define("@scom/scom-table/global/utils.ts", ["require", "exports", "@ijstech/eth-wallet"], function (require, exports, eth_wallet_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.callAPI = exports.formatNumberWithSeparators = exports.formatNumberByFormat = exports.formatNumber = exports.isNumeric = void 0;
+    exports.formatNumberWithSeparators = exports.formatNumberByFormat = exports.formatNumber = exports.isNumeric = void 0;
     const isNumeric = (value) => {
         if (value instanceof eth_wallet_1.BigNumber) {
             return !value.isNaN() && value.isFinite();
@@ -128,29 +128,6 @@ define("@scom/scom-table/global/utils.ts", ["require", "exports", "@scom/scom-ch
         return bigValue.toFormat();
     };
     exports.formatNumberWithSeparators = formatNumberWithSeparators;
-    const callAPI = async (options) => {
-        if (!options.dataSource)
-            return [];
-        try {
-            let apiEndpoint = '';
-            switch (options.dataSource) {
-                case scom_chart_data_source_setup_1.DataSource.Dune:
-                    apiEndpoint = `/dune/query/${options.queryId}`;
-                    break;
-                case scom_chart_data_source_setup_1.DataSource.Custom:
-                    apiEndpoint = options.apiEndpoint;
-                    break;
-            }
-            if (!apiEndpoint)
-                return [];
-            const response = await fetch(apiEndpoint);
-            const jsonData = await response.json();
-            return jsonData.result.rows || [];
-        }
-        catch (_a) { }
-        return [];
-    };
-    exports.callAPI = callAPI;
 });
 define("@scom/scom-table/global/index.ts", ["require", "exports", "@scom/scom-table/global/interfaces.ts", "@scom/scom-table/global/utils.ts"], function (require, exports, interfaces_1, utils_1) {
     "use strict";
@@ -296,49 +273,52 @@ define("@scom/scom-table/formSchema.ts", ["require", "exports"], function (requi
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.getEmbedderSchema = exports.getBuilderSchema = void 0;
     ///<amd-module name='@scom/scom-table/formSchema.ts'/> 
-    const visualizationOptions = {
-        type: 'object',
-        title: 'Visualization Options',
-        properties: {
-            columns: {
-                type: 'array',
-                required: true,
-                items: {
-                    type: 'object',
-                    properties: {
-                        name: {
-                            type: 'string',
-                            required: true
-                        },
-                        title: {
-                            type: 'string'
-                        },
-                        alignContent: {
-                            type: 'string',
-                            enum: [
-                                'left',
-                                'center',
-                                'right'
-                            ]
-                        },
-                        type: {
-                            type: 'string',
-                            enum: [
-                                'normal',
-                                'progressbar'
-                            ]
-                        },
-                        numberFormat: {
-                            type: 'string'
-                        },
-                        isHidden: {
-                            type: 'boolean'
+    function visualizationOptions(columns) {
+        return {
+            type: 'object',
+            title: 'Visualization Options',
+            properties: {
+                columns: {
+                    type: 'array',
+                    required: true,
+                    items: {
+                        type: 'object',
+                        properties: {
+                            name: {
+                                type: 'string',
+                                enum: columns,
+                                required: true
+                            },
+                            title: {
+                                type: 'string'
+                            },
+                            alignContent: {
+                                type: 'string',
+                                enum: [
+                                    'left',
+                                    'center',
+                                    'right'
+                                ]
+                            },
+                            type: {
+                                type: 'string',
+                                enum: [
+                                    'normal',
+                                    'progressbar'
+                                ]
+                            },
+                            numberFormat: {
+                                type: 'string'
+                            },
+                            isHidden: {
+                                type: 'boolean'
+                            }
                         }
                     }
                 }
             }
-        }
-    };
+        };
+    }
     const theme = {
         darkShadow: {
             type: 'boolean'
@@ -479,7 +459,7 @@ define("@scom/scom-table/formSchema.ts", ["require", "exports"], function (requi
             }
         ]
     };
-    function getBuilderSchema() {
+    function getBuilderSchema(columns) {
         return {
             dataSchema: {
                 type: 'object',
@@ -519,7 +499,7 @@ define("@scom/scom-table/formSchema.ts", ["require", "exports"], function (requi
                 dataSchema: {
                     type: 'object',
                     properties: {
-                        options: visualizationOptions
+                        options: visualizationOptions(columns)
                     }
                 },
                 uiSchema: {
@@ -654,19 +634,19 @@ define("@scom/scom-table/dataOptionsForm.tsx", ["require", "exports", "@ijstech/
     ], ScomTableDataOptionsForm);
     exports.default = ScomTableDataOptionsForm;
 });
-define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/scom-table/global/index.ts", "@scom/scom-table/index.css.ts", "@scom/scom-table/assets.ts", "@scom/scom-table/data.json.ts", "@scom/scom-chart-data-source-setup", "@scom/scom-table/formSchema.ts", "@scom/scom-table/dataOptionsForm.tsx"], function (require, exports, components_4, index_1, index_css_1, assets_1, data_json_1, scom_chart_data_source_setup_2, formSchema_1, dataOptionsForm_1) {
+define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/scom-table/global/index.ts", "@scom/scom-table/index.css.ts", "@scom/scom-table/assets.ts", "@scom/scom-table/data.json.ts", "@scom/scom-chart-data-source-setup", "@scom/scom-table/formSchema.ts", "@scom/scom-table/dataOptionsForm.tsx"], function (require, exports, components_4, index_1, index_css_1, assets_1, data_json_1, scom_chart_data_source_setup_1, formSchema_1, dataOptionsForm_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     const Theme = components_4.Styles.Theme.ThemeVars;
     const currentTheme = components_4.Styles.Theme.currentTheme;
     const pageSize = 25;
     const DefaultData = {
-        dataSource: scom_chart_data_source_setup_2.DataSource.Dune,
+        dataSource: scom_chart_data_source_setup_1.DataSource.Dune,
         queryId: '',
         apiEndpoint: '',
         title: '',
         options: undefined,
-        mode: scom_chart_data_source_setup_2.ModeType.LIVE
+        mode: scom_chart_data_source_setup_1.ModeType.LIVE
     };
     let ScomTable = class ScomTable extends components_4.Module {
         static async create(options, parent) {
@@ -676,6 +656,7 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
         }
         constructor(parent, options) {
             super(parent, options);
+            this.columnNames = [];
             this.tableData = [];
             this.totalPage = 0;
             this.pageNumber = 0;
@@ -707,7 +688,7 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
             this.onUpdateBlock();
         }
         _getActions(dataSchema, uiSchema, advancedSchema) {
-            const builderSchema = (0, formSchema_1.getBuilderSchema)();
+            const builderSchema = (0, formSchema_1.getBuilderSchema)(this.columnNames);
             const actions = [
                 {
                     name: 'Edit',
@@ -793,7 +774,7 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
                     customUI: {
                         render: (data, onConfirm, onChange) => {
                             const vstack = new components_4.VStack(null, { gap: '1rem' });
-                            const dataSourceSetup = new scom_chart_data_source_setup_2.default(null, Object.assign(Object.assign({}, this._data), { chartData: JSON.stringify(this.tableData), onCustomDataChanged: async (dataSourceSetupData) => {
+                            const dataSourceSetup = new scom_chart_data_source_setup_1.default(null, Object.assign(Object.assign({}, this._data), { chartData: JSON.stringify(this.tableData), onCustomDataChanged: async (dataSourceSetupData) => {
                                     if (onChange) {
                                         onChange(true, Object.assign(Object.assign({}, this._data), dataSourceSetupData));
                                     }
@@ -824,9 +805,9 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
                             }
                             button.onClick = async () => {
                                 const { dataSource, file, mode } = dataSourceSetup.data;
-                                if (mode === scom_chart_data_source_setup_2.ModeType.LIVE && !dataSource)
+                                if (mode === scom_chart_data_source_setup_1.ModeType.LIVE && !dataSource)
                                     return;
-                                if (mode === scom_chart_data_source_setup_2.ModeType.SNAPSHOT && !(file === null || file === void 0 ? void 0 : file.cid))
+                                if (mode === scom_chart_data_source_setup_1.ModeType.SNAPSHOT && !(file === null || file === void 0 ? void 0 : file.cid))
                                     return;
                                 if (onConfirm) {
                                     const optionsFormData = await dataOptionsForm.refreshFormData();
@@ -873,7 +854,7 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
                     name: 'Builder Configurator',
                     target: 'Builders',
                     getActions: () => {
-                        const builderSchema = (0, formSchema_1.getBuilderSchema)();
+                        const builderSchema = (0, formSchema_1.getBuilderSchema)(this.columnNames);
                         const dataSchema = builderSchema.dataSchema;
                         const uiSchema = builderSchema.uiSchema;
                         const advancedSchema = builderSchema.advanced.dataSchema;
@@ -966,7 +947,7 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
                 this.inputSearch.value = '';
             }
             this.loadingElm.visible = true;
-            if (((_a = this._data) === null || _a === void 0 ? void 0 : _a.mode) === scom_chart_data_source_setup_2.ModeType.SNAPSHOT)
+            if (((_a = this._data) === null || _a === void 0 ? void 0 : _a.mode) === scom_chart_data_source_setup_1.ModeType.SNAPSHOT)
                 await this.renderSnapshotData();
             else
                 await this.renderLiveData();
@@ -976,9 +957,11 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
             var _a;
             if ((_a = this._data.file) === null || _a === void 0 ? void 0 : _a.cid) {
                 try {
-                    const data = await (0, scom_chart_data_source_setup_2.fetchContentByCID)(this._data.file.cid);
+                    const data = await (0, scom_chart_data_source_setup_1.fetchContentByCID)(this._data.file.cid);
                     if (data) {
-                        this.tableData = data;
+                        const { metadata, rows } = data;
+                        this.tableData = rows;
+                        this.columnNames = (metadata === null || metadata === void 0 ? void 0 : metadata.column_names) || [];
                         this.onUpdateBlock();
                         return;
                     }
@@ -986,19 +969,22 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
                 catch (_b) { }
             }
             this.tableData = [];
+            this.columnNames = [];
             this.onUpdateBlock();
         }
         async renderLiveData() {
             const dataSource = this._data.dataSource;
             if (dataSource) {
                 try {
-                    const data = await (0, index_1.callAPI)({
+                    const data = await (0, scom_chart_data_source_setup_1.callAPI)({
                         dataSource,
                         queryId: this._data.queryId,
                         apiEndpoint: this._data.apiEndpoint
                     });
                     if (data) {
-                        this.tableData = data;
+                        const { metadata, rows } = data;
+                        this.tableData = rows;
+                        this.columnNames = (metadata === null || metadata === void 0 ? void 0 : metadata.column_names) || [];
                         this.onUpdateBlock();
                         return;
                     }
@@ -1006,6 +992,7 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
                 catch (_a) { }
             }
             this.tableData = [];
+            this.columnNames = [];
             this.onUpdateBlock();
         }
         renderTable(resize) {

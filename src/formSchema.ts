@@ -1,40 +1,43 @@
-const visualizationOptions = {
-    type: 'object',
-    title: 'Visualization Options',
-    properties: {
-        columns: {
-            type: 'array',
-            required: true,
-            items: {
-                type: 'object',
-                properties: {
-                    name: {
-                        type: 'string',
-                        required: true
-                    },
-                    title: {
-                        type: 'string'
-                    },
-                    alignContent: {
-                        type: 'string',
-                        enum: [
-                            'left',
-                            'center',
-                            'right'
-                        ]
-                    },
-                    type: {
-                        type: 'string',
-                        enum: [
-                            'normal',
-                            'progressbar'
-                        ]
-                    },
-                    numberFormat: {
-                        type: 'string'
-                    },
-                    isHidden: {
-                        type: 'boolean'
+function visualizationOptions(columns: string[]) {
+    return {
+        type: 'object',
+        title: 'Visualization Options',
+        properties: {
+            columns: {
+                type: 'array',
+                required: true,
+                items: {
+                    type: 'object',
+                    properties: {
+                        name: {
+                            type: 'string',
+                            enum: columns,
+                            required: true
+                        },
+                        title: {
+                            type: 'string'
+                        },
+                        alignContent: {
+                            type: 'string',
+                            enum: [
+                                'left',
+                                'center',
+                                'right'
+                            ]
+                        },
+                        type: {
+                            type: 'string',
+                            enum: [
+                                'normal',
+                                'progressbar'
+                            ]
+                        },
+                        numberFormat: {
+                            type: 'string'
+                        },
+                        isHidden: {
+                            type: 'boolean'
+                        }
                     }
                 }
             }
@@ -184,7 +187,7 @@ const themeUISchema = {
     ]
 }
 
-export function getBuilderSchema() {
+export function getBuilderSchema(columns: string[]) {
     return {
         dataSchema: {
             type: 'object',
@@ -228,7 +231,7 @@ export function getBuilderSchema() {
             dataSchema: {
                 type: 'object',
                 properties: {
-                    options: visualizationOptions
+                    options: visualizationOptions(columns)
                 }
             },
             uiSchema: {

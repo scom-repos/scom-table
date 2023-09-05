@@ -32,9 +32,3 @@ export interface IFormatNumberOptions {
   precision?: number;
   roundingMode?: BigNumber.RoundingMode;
 }
-
-export interface IFetchDataOptions {
-  dataSource: string;
-  queryId?: string;
-  apiEndpoint?: string;
-}

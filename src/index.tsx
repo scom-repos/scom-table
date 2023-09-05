@@ -19,11 +19,11 @@ import {
   Button,
   IUISchema
 } from '@ijstech/components';
-import { ITableConfig, formatNumberWithSeparators, callAPI, formatNumberByFormat, ITableOptions, isNumeric } from './global/index';
+import { ITableConfig, formatNumberWithSeparators, formatNumberByFormat, ITableOptions, isNumeric } from './global/index';
 import { containerStyle, tableStyle } from './index.css';
 import assets from './assets';
 import dataJson from './data.json';
-import ScomChartDataSourceSetup, { ModeType, fetchContentByCID, DataSource } from '@scom/scom-chart-data-source-setup';
+import ScomChartDataSourceSetup, { ModeType, fetchContentByCID, callAPI, DataSource } from '@scom/scom-chart-data-source-setup';
 import { getBuilderSchema, getEmbedderSchema } from './formSchema';
 import ScomTableDataOptionsForm from './dataOptionsForm';
 const Theme = Styles.Theme.ThemeVars;
@@ -64,6 +64,7 @@ export default class ScomTable extends Module {
   private lbDescription: Label;
   private pnlTable: Panel;
   private tableElm: Table;
+  private columnNames: string[] = [];
   private tableData: { [key: string]: string | number }[] = [];
   private paginationElm: Pagination;
   private lbTotal: Label;
@@ -115,7 +116,7 @@ export default class ScomTable extends Module {
   }
 
   private _getActions(dataSchema: IDataSchema, uiSchema: IUISchema, advancedSchema?: IDataSchema) {
-    const builderSchema = getBuilderSchema();
+    const builderSchema = getBuilderSchema(this.columnNames);
     const actions = [
       {
         name: 'Edit',
@@ -287,7 +288,7 @@ export default class ScomTable extends Module {
         name: 'Builder Configurator',
         target: 'Builders',
         getActions: () => {
-          const builderSchema = getBuilderSchema();
+          const builderSchema = getBuilderSchema(this.columnNames);
           const dataSchema = builderSchema.dataSchema as IDataSchema;
           const uiSchema = builderSchema.uiSchema as IUISchema;
           const advancedSchema = builderSchema.advanced.dataSchema as any;
@@ -398,18 +399,21 @@ export default class ScomTable extends Module {
       try {
         const data = await fetchContentByCID(this._data.file.cid);
         if (data) {
-          this.tableData = data;
+          const { metadata, rows } = data;
+          this.tableData = rows;
+          this.columnNames = metadata?.column_names || [];
           this.onUpdateBlock();
           return;
         }
       } catch { }
     }
     this.tableData = [];
+    this.columnNames = [];
     this.onUpdateBlock();
   }
 
   private async renderLiveData() {
-    const dataSource = this._data.dataSource;
+    const dataSource = this._data.dataSource as DataSource;
     if (dataSource) {
       try {
         const data = await callAPI({
@@ -418,13 +422,16 @@ export default class ScomTable extends Module {
           apiEndpoint: this._data.apiEndpoint
         });
         if (data) {
-          this.tableData = data;
+          const { metadata, rows } = data;
+          this.tableData = rows;
+          this.columnNames = metadata?.column_names || [];
           this.onUpdateBlock();
           return;
         }
       } catch { }
     }
     this.tableData = [];
+    this.columnNames = [];
     this.onUpdateBlock();
   }
 
