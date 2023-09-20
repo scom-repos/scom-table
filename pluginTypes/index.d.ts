@@ -35,7 +35,6 @@ declare module "@scom/scom-table/global/interfaces.ts" {
 /// <amd-module name="@scom/scom-table/global/utils.ts" />
 declare module "@scom/scom-table/global/utils.ts" {
     import { BigNumber } from '@ijstech/eth-wallet';
-    import { IFormatNumberOptions } from "@scom/scom-table/global/interfaces.ts";
     export const isNumeric: (value: string | number | BigNumber) => boolean;
     export const formatNumber: (num: number, options?: {
         format?: string;
@@ -43,7 +42,6 @@ declare module "@scom/scom-table/global/utils.ts" {
         percentValues?: boolean;
     }) => any;
     export const formatNumberByFormat: (num: number, format: string, separators?: boolean) => any;
-    export const formatNumberWithSeparators: (value: number | string | BigNumber, options: IFormatNumberOptions) => string;
 }
 /// <amd-module name="@scom/scom-table/global/index.ts" />
 declare module "@scom/scom-table/global/index.ts" {

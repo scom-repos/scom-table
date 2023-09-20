@@ -17,9 +17,10 @@ import {
   Input,
   observable,
   Button,
-  IUISchema
+  IUISchema,
+  FormatUtils
 } from '@ijstech/components';
-import { ITableConfig, formatNumberWithSeparators, formatNumberByFormat, ITableOptions, isNumeric } from './global/index';
+import { ITableConfig, formatNumberByFormat, ITableOptions, isNumeric } from './global/index';
 import { containerStyle, tableStyle } from './index.css';
 import assets from './assets';
 import dataJson from './data.json';
@@ -481,7 +482,7 @@ export default class ScomTable extends Module {
             }
             new Label(hStack, {
               caption: isNumber && numberFormat ? formatNumberByFormat(data, numberFormat, true) :
-                isNumber ? formatNumberWithSeparators(data, { precision: 0 }) : data,
+                isNumber ? FormatUtils.formatNumberWithSeparators(data, 0) : data,
               font: {
                 size: '12px',
                 color: Theme.text.primary
