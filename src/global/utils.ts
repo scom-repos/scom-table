@@ -17,44 +17,44 @@ export const formatNumber = (num: number, options?: { format?: string, decimals?
   if (num === null) return '-';
   const { decimals, format, percentValues } = options || {};
   if (percentValues) {
-    return `${FormatUtils.formatNumberWithSeparators(num, 2)}%`;
+    return `${FormatUtils.formatNumber(num, {decimalFigures: 2})}%`;
   }
   if (format) {
     return formatNumberByFormat(num, format);
   }
   const absNum = Math.abs(num);
   if (absNum >= 1000000000) {
-    return FormatUtils.formatNumberWithSeparators((num / 1000000000), decimals || 3) + 'B';
+    return FormatUtils.formatNumber((num / 1000000000), {decimalFigures: decimals || 3}) + 'B';
   }
   if (absNum >= 1000000) {
-    return FormatUtils.formatNumberWithSeparators((num / 1000000), decimals || 3) + 'M';
+    return FormatUtils.formatNumber((num / 1000000), {decimalFigures: decimals || 3}) + 'M';
   }
   if (absNum >= 1000) {
-    return FormatUtils.formatNumberWithSeparators((num / 1000), decimals || 3) + 'K';
+    return FormatUtils.formatNumber((num / 1000), {decimalFigures: decimals || 3}) + 'K';
   }
   if (absNum < 0.0000001) {
-    return FormatUtils.formatNumberWithSeparators(num, 0);
+    return FormatUtils.formatNumber(num, {decimalFigures: 0});
   }
   if (absNum < 0.00001) {
-    return FormatUtils.formatNumberWithSeparators(num, 6);
+    return FormatUtils.formatNumber(num, {decimalFigures: 6});
   }
   if (absNum < 0.001) {
-    return FormatUtils.formatNumberWithSeparators(num, 4);
+    return FormatUtils.formatNumber(num, {decimalFigures: 4});
   }
   if (absNum < 1) {
-    return FormatUtils.formatNumberWithSeparators(num, 4);
+    return FormatUtils.formatNumber(num, {decimalFigures: 4});
   }
-  return FormatUtils.formatNumberWithSeparators(num, 2);
+  return FormatUtils.formatNumber(num, {decimalFigures: 2});
 }
 
 export const formatNumberByFormat = (num: number, format: string, separators?: boolean) => {
-  if (!format) return FormatUtils.formatNumberWithSeparators(num, 0);
-  const decimalPlaces = format.split('.')[1] ? format.split('.')[1].length : 0;
+  if (!format) return FormatUtils.formatNumber(num, {decimalFigures: 0});
+  const decimalFigures = format.split('.')[1] ? format.split('.')[1].length : 0;
   if (format.includes('%')) {
-    return FormatUtils.formatNumberWithSeparators((num * 100), decimalPlaces) + '%';
+    return FormatUtils.formatNumber((num * 100), {decimalFigures}) + '%';
   }
   const currencySymbol = format.indexOf('$') !== -1 ? '$' : '';
-  const roundedNum = FormatUtils.formatNumberWithSeparators(num, decimalPlaces);
+  const roundedNum = FormatUtils.formatNumber(num, {decimalFigures});
   if (separators && !format.includes('.ma')) {
     return `${currencySymbol}${roundedNum}`;
   }

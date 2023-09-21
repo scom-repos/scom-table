@@ -53,45 +53,45 @@ define("@scom/scom-table/global/utils.ts", ["require", "exports", "@ijstech/eth-
             return '-';
         const { decimals, format, percentValues } = options || {};
         if (percentValues) {
-            return `${components_1.FormatUtils.formatNumberWithSeparators(num, 2)}%`;
+            return `${components_1.FormatUtils.formatNumber(num, { decimalFigures: 2 })}%`;
         }
         if (format) {
             return (0, exports.formatNumberByFormat)(num, format);
         }
         const absNum = Math.abs(num);
         if (absNum >= 1000000000) {
-            return components_1.FormatUtils.formatNumberWithSeparators((num / 1000000000), decimals || 3) + 'B';
+            return components_1.FormatUtils.formatNumber((num / 1000000000), { decimalFigures: decimals || 3 }) + 'B';
         }
         if (absNum >= 1000000) {
-            return components_1.FormatUtils.formatNumberWithSeparators((num / 1000000), decimals || 3) + 'M';
+            return components_1.FormatUtils.formatNumber((num / 1000000), { decimalFigures: decimals || 3 }) + 'M';
         }
         if (absNum >= 1000) {
-            return components_1.FormatUtils.formatNumberWithSeparators((num / 1000), decimals || 3) + 'K';
+            return components_1.FormatUtils.formatNumber((num / 1000), { decimalFigures: decimals || 3 }) + 'K';
         }
         if (absNum < 0.0000001) {
-            return components_1.FormatUtils.formatNumberWithSeparators(num, 0);
+            return components_1.FormatUtils.formatNumber(num, { decimalFigures: 0 });
         }
         if (absNum < 0.00001) {
-            return components_1.FormatUtils.formatNumberWithSeparators(num, 6);
+            return components_1.FormatUtils.formatNumber(num, { decimalFigures: 6 });
         }
         if (absNum < 0.001) {
-            return components_1.FormatUtils.formatNumberWithSeparators(num, 4);
+            return components_1.FormatUtils.formatNumber(num, { decimalFigures: 4 });
         }
         if (absNum < 1) {
-            return components_1.FormatUtils.formatNumberWithSeparators(num, 4);
+            return components_1.FormatUtils.formatNumber(num, { decimalFigures: 4 });
         }
-        return components_1.FormatUtils.formatNumberWithSeparators(num, 2);
+        return components_1.FormatUtils.formatNumber(num, { decimalFigures: 2 });
     };
     exports.formatNumber = formatNumber;
     const formatNumberByFormat = (num, format, separators) => {
         if (!format)
-            return components_1.FormatUtils.formatNumberWithSeparators(num, 0);
-        const decimalPlaces = format.split('.')[1] ? format.split('.')[1].length : 0;
+            return components_1.FormatUtils.formatNumber(num, { decimalFigures: 0 });
+        const decimalFigures = format.split('.')[1] ? format.split('.')[1].length : 0;
         if (format.includes('%')) {
-            return components_1.FormatUtils.formatNumberWithSeparators((num * 100), decimalPlaces) + '%';
+            return components_1.FormatUtils.formatNumber((num * 100), { decimalFigures }) + '%';
         }
         const currencySymbol = format.indexOf('$') !== -1 ? '$' : '';
-        const roundedNum = components_1.FormatUtils.formatNumberWithSeparators(num, decimalPlaces);
+        const roundedNum = components_1.FormatUtils.formatNumber(num, { decimalFigures });
         if (separators && !format.includes('.ma')) {
             return `${currencySymbol}${roundedNum}`;
         }
@@ -1043,7 +1043,7 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
                             }
                             new components_5.Label(hStack, {
                                 caption: isNumber && numberFormat ? (0, index_1.formatNumberByFormat)(data, numberFormat, true) :
-                                    isNumber ? components_5.FormatUtils.formatNumberWithSeparators(data, 0) : data,
+                                    isNumber ? components_5.FormatUtils.formatNumber(data, { decimalFigures: 0 }) : data,
                                 font: {
                                     size: '12px',
                                     color: Theme.text.primary

@@ -482,7 +482,7 @@ export default class ScomTable extends Module {
             }
             new Label(hStack, {
               caption: isNumber && numberFormat ? formatNumberByFormat(data, numberFormat, true) :
-                isNumber ? FormatUtils.formatNumberWithSeparators(data, 0) : data,
+                isNumber ? FormatUtils.formatNumber(data, {decimalFigures: 0}) : data,
               font: {
                 size: '12px',
                 color: Theme.text.primary
