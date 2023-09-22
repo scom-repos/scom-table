@@ -21,7 +21,7 @@ import {
   FormatUtils
 } from '@ijstech/components';
 import { ITableConfig, formatNumberByFormat, ITableOptions, isNumeric } from './global/index';
-import { containerStyle, tableStyle } from './index.css';
+import { containerStyle, tableStyle, textStyle } from './index.css';
 import assets from './assets';
 import dataJson from './data.json';
 import ScomChartDataSourceSetup, { ModeType, fetchContentByCID, callAPI, DataSource } from '@scom/scom-chart-data-source-setup';
@@ -104,7 +104,15 @@ export default class ScomTable extends Module {
     return this.tag;
   }
 
-  private async setTag(value: any) {
+  private async setTag(value: any, fromParent?: boolean) {
+    if (fromParent) {
+      this.tag.parentFontColor = value.fontColor;
+      this.tag.parentCustomFontColor = value.customFontColor;
+      this.tag.parentBackgroundColor = value.backgroundColor;
+      this.tag.parentCustomBackgroundColor = value.customBackgoundColor;
+      this.onUpdateBlock();
+      return;
+    }
     const newValue = value || {};
     for (let prop in newValue) {
       if (newValue.hasOwnProperty(prop)) {
@@ -367,15 +375,16 @@ export default class ScomTable extends Module {
     if (this.vStackTable) {
       this.vStackTable.style.boxShadow = this.tag?.darkShadow ? '0 -2px 10px rgba(0, 0, 0, 1)' : 'rgba(0, 0, 0, 0.16) 0px 1px 4px';
     }
-    this.updateStyle('--text-primary', this.tag?.fontColor);
-    this.updateStyle('--background-main', this.tag?.backgroundColor);
-    this.updateStyle('--colors-info-main', this.tag?.progressBackgroundColor);
-    this.updateStyle('--colors-success-light', this.tag?.footerBackgroundColor || '#ffeceb');
-    this.updateStyle('--colors-success-contrast_text', this.tag?.footerFontColor);
-    this.updateStyle('--colors-success-dark', this.tag?.paginationActiveBackgoundColor || '#e47872');
-    this.updateStyle('--colors-secondary-contrast_text', this.tag?.paginationActiveFontColor);
-    this.updateStyle('--colors-info-light', this.tag?.headerBackgroundColor || '#ffeceb');
-    this.updateStyle('--colors-info-contrast_text', this.tag?.headerFontColor);
+    const tags = this.tag || {};
+    this.updateStyle('--custom-text-color', tags.customFontColor ? tags.fontColor : tags.parentCustomFontColor ? tags.parentFontColor : '');
+    this.updateStyle('--custom-background-color', tags.customBackgroundColor ? tags.backgroundColor : tags.parentCustomBackgroundColor ? tags.parentBackgroundColor : '');
+    this.updateStyle('--colors-info-main', tags.progressBackgroundColor);
+    this.updateStyle('--colors-success-light', tags.footerBackgroundColor || '#ffeceb');
+    this.updateStyle('--colors-success-contrast_text', tags.footerFontColor);
+    this.updateStyle('--colors-success-dark', tags.paginationActiveBackgoundColor || '#e47872');
+    this.updateStyle('--colors-secondary-contrast_text', tags.paginationActiveFontColor);
+    this.updateStyle('--colors-info-light', tags.headerBackgroundColor || '#ffeceb');
+    this.updateStyle('--colors-info-contrast_text', tags.headerFontColor);
   }
 
   private onUpdateBlock() {
@@ -480,14 +489,14 @@ export default class ScomTable extends Module {
                 percent: (data / totalValue) * 100
               });
             }
-            new Label(hStack, {
+            const lb = new Label(hStack, {
               caption: isNumber && numberFormat ? formatNumberByFormat(data, numberFormat, true) :
                 isNumber ? FormatUtils.formatNumber(data, {decimalFigures: 0}) : data,
               font: {
-                size: '12px',
-                color: Theme.text.primary
+                size: '12px'
               }
             });
+            lb.classList.add(textStyle);
             return hStack;
           }
         }
@@ -532,8 +541,6 @@ export default class ScomTable extends Module {
     this.classList.add(tableStyle);
     this.updateTheme();
     this.setTag({
-      fontColor: currentTheme.text.primary,
-      backgroundColor: currentTheme.background.main,
       progressBackgroundColor: currentTheme.colors.info.main,
       footerBackgroundColor: currentTheme.colors.success.light || '#ffeceb',
       footerFontColor: currentTheme.colors.success.contrastText,
@@ -544,9 +551,6 @@ export default class ScomTable extends Module {
       height: 500,
       boxShadow: false
     })
-    // const { width, height, darkShadow } = this.tag || {};
-    // this.width = width || 700;
-    // this.height = height || 500;
     this.maxWidth = '100%';
     this.vStackTable.style.boxShadow = 'rgba(0, 0, 0, 0.16) 0px 1px 4px';
     const lazyLoad = this.getAttribute('lazyLoad', true, false);
@@ -574,7 +578,6 @@ export default class ScomTable extends Module {
       <i-vstack
         id="vStackTable"
         position="relative"
-        background={{ color: Theme.background.main }}
         height="100%"
         padding={{ top: 10, bottom: 10, left: 10, right: 10 }}
         class={containerStyle}
@@ -594,8 +597,8 @@ export default class ScomTable extends Module {
           margin={{ left: 'auto', right: 'auto', bottom: 10 }}
           verticalAlignment="center"
         >
-          <i-label id="lbTitle" font={{ bold: true, color: Theme.text.primary }} />
-          <i-label id="lbDescription" margin={{ top: 5 }} font={{ color: Theme.text.primary }} />
+          <i-label id="lbTitle" font={{ bold: true }} class={textStyle} />
+          <i-label id="lbDescription" margin={{ top: 5 }} class={textStyle} />
         </i-vstack>
         <i-panel id="pnlTable">
           <i-panel height="inherit">

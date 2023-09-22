@@ -138,14 +138,18 @@ define("@scom/scom-table/global/index.ts", ["require", "exports", "@scom/scom-ta
 define("@scom/scom-table/index.css.ts", ["require", "exports", "@ijstech/components"], function (require, exports, components_2) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.tableStyle = exports.containerStyle = void 0;
+    exports.tableStyle = exports.textStyle = exports.containerStyle = void 0;
     const Theme = components_2.Styles.Theme.ThemeVars;
     exports.containerStyle = components_2.Styles.style({
         width: 'var(--layout-container-width)',
         maxWidth: 'var(--layout-container-max_width)',
         textAlign: 'var(--layout-container-text_align)',
         margin: '0 auto',
-        padding: 10
+        padding: 10,
+        background: 'var(--custom-background-color, var(--background-main))'
+    });
+    exports.textStyle = components_2.Styles.style({
+        color: 'var(--custom-text-color, var(--text-primary))'
     });
     exports.tableStyle = components_2.Styles.style({
         display: 'block',
@@ -322,9 +326,15 @@ define("@scom/scom-table/formSchema.ts", ["require", "exports"], function (requi
         darkShadow: {
             type: 'boolean'
         },
+        customFontColor: {
+            type: 'boolean'
+        },
         fontColor: {
             type: 'string',
             format: 'color'
+        },
+        customBackgroundColor: {
+            type: 'boolean'
         },
         backgroundColor: {
             type: 'string',
@@ -358,9 +368,6 @@ define("@scom/scom-table/formSchema.ts", ["require", "exports"], function (requi
             type: 'string',
             format: 'color'
         },
-        // width: {
-        //   type: 'string'
-        // },
         height: {
             type: 'string'
         }
@@ -373,23 +380,46 @@ define("@scom/scom-table/formSchema.ts", ["require", "exports"], function (requi
                 type: 'VerticalLayout',
                 elements: [
                     {
-                        type: 'Control',
-                        scope: '#/properties/darkShadow'
+                        type: 'HorizontalLayout',
+                        elements: [
+                            {
+                                type: 'Control',
+                                scope: '#/properties/customFontColor'
+                            },
+                            {
+                                type: 'Control',
+                                scope: '#/properties/fontColor',
+                                rule: {
+                                    effect: 'ENABLE',
+                                    condition: {
+                                        scope: '#/properties/customFontColor',
+                                        schema: {
+                                            const: true
+                                        }
+                                    }
+                                }
+                            }
+                        ]
                     },
                     {
                         type: 'HorizontalLayout',
                         elements: [
                             {
                                 type: 'Control',
-                                scope: '#/properties/fontColor'
+                                scope: '#/properties/customBackgroundColor'
                             },
                             {
                                 type: 'Control',
-                                scope: '#/properties/backgroundColor'
-                            },
-                            {
-                                type: 'Control',
-                                scope: '#/properties/progressBackgroundColor'
+                                scope: '#/properties/backgroundColor',
+                                rule: {
+                                    effect: 'ENABLE',
+                                    condition: {
+                                        scope: '#/properties/customBackgroundColor',
+                                        schema: {
+                                            const: true
+                                        }
+                                    }
+                                }
                             }
                         ]
                     },
@@ -451,8 +481,26 @@ define("@scom/scom-table/formSchema.ts", ["require", "exports"], function (requi
                         ]
                     },
                     {
-                        type: 'Control',
-                        scope: '#/properties/height'
+                        type: 'HorizontalLayout',
+                        elements: [
+                            {
+                                type: 'Control',
+                                scope: '#/properties/progressBackgroundColor'
+                            },
+                            {
+                                type: 'Control',
+                                scope: '#/properties/height'
+                            }
+                        ]
+                    },
+                    {
+                        type: 'HorizontalLayout',
+                        elements: [
+                            {
+                                type: 'Control',
+                                scope: '#/properties/darkShadow'
+                            }
+                        ]
                     }
                 ]
             }
@@ -675,7 +723,15 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
         getTag() {
             return this.tag;
         }
-        async setTag(value) {
+        async setTag(value, fromParent) {
+            if (fromParent) {
+                this.tag.parentFontColor = value.fontColor;
+                this.tag.parentCustomFontColor = value.customFontColor;
+                this.tag.parentBackgroundColor = value.backgroundColor;
+                this.tag.parentCustomBackgroundColor = value.customBackgoundColor;
+                this.onUpdateBlock();
+                return;
+            }
             const newValue = value || {};
             for (let prop in newValue) {
                 if (newValue.hasOwnProperty(prop)) {
@@ -922,19 +978,20 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
             value ? this.style.setProperty(name, value) : this.style.removeProperty(name);
         }
         updateTheme() {
-            var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
+            var _a;
             if (this.vStackTable) {
                 this.vStackTable.style.boxShadow = ((_a = this.tag) === null || _a === void 0 ? void 0 : _a.darkShadow) ? '0 -2px 10px rgba(0, 0, 0, 1)' : 'rgba(0, 0, 0, 0.16) 0px 1px 4px';
             }
-            this.updateStyle('--text-primary', (_b = this.tag) === null || _b === void 0 ? void 0 : _b.fontColor);
-            this.updateStyle('--background-main', (_c = this.tag) === null || _c === void 0 ? void 0 : _c.backgroundColor);
-            this.updateStyle('--colors-info-main', (_d = this.tag) === null || _d === void 0 ? void 0 : _d.progressBackgroundColor);
-            this.updateStyle('--colors-success-light', ((_e = this.tag) === null || _e === void 0 ? void 0 : _e.footerBackgroundColor) || '#ffeceb');
-            this.updateStyle('--colors-success-contrast_text', (_f = this.tag) === null || _f === void 0 ? void 0 : _f.footerFontColor);
-            this.updateStyle('--colors-success-dark', ((_g = this.tag) === null || _g === void 0 ? void 0 : _g.paginationActiveBackgoundColor) || '#e47872');
-            this.updateStyle('--colors-secondary-contrast_text', (_h = this.tag) === null || _h === void 0 ? void 0 : _h.paginationActiveFontColor);
-            this.updateStyle('--colors-info-light', ((_j = this.tag) === null || _j === void 0 ? void 0 : _j.headerBackgroundColor) || '#ffeceb');
-            this.updateStyle('--colors-info-contrast_text', (_k = this.tag) === null || _k === void 0 ? void 0 : _k.headerFontColor);
+            const tags = this.tag || {};
+            this.updateStyle('--custom-text-color', tags.customFontColor ? tags.fontColor : tags.parentCustomFontColor ? tags.parentFontColor : '');
+            this.updateStyle('--custom-background-color', tags.customBackgroundColor ? tags.backgroundColor : tags.parentCustomBackgroundColor ? tags.parentBackgroundColor : '');
+            this.updateStyle('--colors-info-main', tags.progressBackgroundColor);
+            this.updateStyle('--colors-success-light', tags.footerBackgroundColor || '#ffeceb');
+            this.updateStyle('--colors-success-contrast_text', tags.footerFontColor);
+            this.updateStyle('--colors-success-dark', tags.paginationActiveBackgoundColor || '#e47872');
+            this.updateStyle('--colors-secondary-contrast_text', tags.paginationActiveFontColor);
+            this.updateStyle('--colors-info-light', tags.headerBackgroundColor || '#ffeceb');
+            this.updateStyle('--colors-info-contrast_text', tags.headerFontColor);
         }
         onUpdateBlock() {
             this.renderTable();
@@ -1041,14 +1098,14 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
                                     percent: (data / totalValue) * 100
                                 });
                             }
-                            new components_5.Label(hStack, {
+                            const lb = new components_5.Label(hStack, {
                                 caption: isNumber && numberFormat ? (0, index_1.formatNumberByFormat)(data, numberFormat, true) :
                                     isNumber ? components_5.FormatUtils.formatNumber(data, { decimalFigures: 0 }) : data,
                                 font: {
-                                    size: '12px',
-                                    color: Theme.text.primary
+                                    size: '12px'
                                 }
                             });
+                            lb.classList.add(index_css_1.textStyle);
                             return hStack;
                         }
                     };
@@ -1088,8 +1145,6 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
             this.classList.add(index_css_1.tableStyle);
             this.updateTheme();
             this.setTag({
-                fontColor: currentTheme.text.primary,
-                backgroundColor: currentTheme.background.main,
                 progressBackgroundColor: currentTheme.colors.info.main,
                 footerBackgroundColor: currentTheme.colors.success.light || '#ffeceb',
                 footerFontColor: currentTheme.colors.success.contrastText,
@@ -1100,9 +1155,6 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
                 height: 500,
                 boxShadow: false
             });
-            // const { width, height, darkShadow } = this.tag || {};
-            // this.width = width || 700;
-            // this.height = height || 500;
             this.maxWidth = '100%';
             this.vStackTable.style.boxShadow = 'rgba(0, 0, 0, 0.16) 0px 1px 4px';
             const lazyLoad = this.getAttribute('lazyLoad', true, false);
@@ -1125,13 +1177,13 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
             });
         }
         render() {
-            return (this.$render("i-vstack", { id: "vStackTable", position: "relative", background: { color: Theme.background.main }, height: "100%", padding: { top: 10, bottom: 10, left: 10, right: 10 }, class: index_css_1.containerStyle },
+            return (this.$render("i-vstack", { id: "vStackTable", position: "relative", height: "100%", padding: { top: 10, bottom: 10, left: 10, right: 10 }, class: index_css_1.containerStyle },
                 this.$render("i-vstack", { id: "loadingElm", class: "i-loading-overlay" },
                     this.$render("i-vstack", { class: "i-loading-spinner", horizontalAlignment: "center", verticalAlignment: "center" },
                         this.$render("i-icon", { class: "i-loading-spinner_icon", image: { url: assets_1.default.fullPath('img/loading.svg'), width: 36, height: 36 } }))),
                 this.$render("i-vstack", { id: "vStackInfo", width: "100%", maxWidth: "100%", margin: { left: 'auto', right: 'auto', bottom: 10 }, verticalAlignment: "center" },
-                    this.$render("i-label", { id: "lbTitle", font: { bold: true, color: Theme.text.primary } }),
-                    this.$render("i-label", { id: "lbDescription", margin: { top: 5 }, font: { color: Theme.text.primary } })),
+                    this.$render("i-label", { id: "lbTitle", font: { bold: true }, class: index_css_1.textStyle }),
+                    this.$render("i-label", { id: "lbDescription", margin: { top: 5 }, class: index_css_1.textStyle })),
                 this.$render("i-panel", { id: "pnlTable" },
                     this.$render("i-panel", { height: "inherit" },
                         this.$render("i-table", { id: "tableElm", width: "100%", height: "100%" }),

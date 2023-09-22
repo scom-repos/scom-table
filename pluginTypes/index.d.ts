@@ -51,6 +51,7 @@ declare module "@scom/scom-table/global/index.ts" {
 /// <amd-module name="@scom/scom-table/index.css.ts" />
 declare module "@scom/scom-table/index.css.ts" {
     export const containerStyle: string;
+    export const textStyle: string;
     export const tableStyle: string;
 }
 /// <amd-module name="@scom/scom-table/assets.ts" />
@@ -100,9 +101,15 @@ declare module "@scom/scom-table/formSchema.ts" {
                 darkShadow: {
                     type: string;
                 };
+                customFontColor: {
+                    type: string;
+                };
                 fontColor: {
                     type: string;
                     format: string;
+                };
+                customBackgroundColor: {
+                    type: string;
                 };
                 backgroundColor: {
                     type: string;
@@ -149,23 +156,30 @@ declare module "@scom/scom-table/formSchema.ts" {
         };
         uiSchema: {
             type: string;
-            elements: {
+            elements: ({
                 type: string;
                 label: string;
                 elements: {
                     type: string;
                     elements: ({
                         type: string;
-                        scope: string;
-                        elements?: undefined;
-                        label?: undefined;
-                    } | {
-                        type: string;
-                        elements: {
+                        elements: ({
                             type: string;
                             scope: string;
-                        }[];
-                        scope?: undefined;
+                            rule?: undefined;
+                        } | {
+                            type: string;
+                            scope: string;
+                            rule: {
+                                effect: string;
+                                condition: {
+                                    scope: string;
+                                    schema: {
+                                        const: boolean;
+                                    };
+                                };
+                            };
+                        })[];
                         label?: undefined;
                     } | {
                         type: string;
@@ -177,10 +191,19 @@ declare module "@scom/scom-table/formSchema.ts" {
                                 scope: string;
                             }[];
                         }[];
-                        scope?: undefined;
                     })[];
                 }[];
-            }[];
+            } | {
+                type: string;
+                label: string;
+                elements: {
+                    type: string;
+                    elements: {
+                        type: string;
+                        scope: string;
+                    }[];
+                }[];
+            })[];
         };
         advanced: {
             dataSchema: {
@@ -250,9 +273,15 @@ declare module "@scom/scom-table/formSchema.ts" {
                 darkShadow: {
                     type: string;
                 };
+                customFontColor: {
+                    type: string;
+                };
                 fontColor: {
                     type: string;
                     format: string;
+                };
+                customBackgroundColor: {
+                    type: string;
                 };
                 backgroundColor: {
                     type: string;
@@ -299,23 +328,30 @@ declare module "@scom/scom-table/formSchema.ts" {
         };
         uiSchema: {
             type: string;
-            elements: {
+            elements: ({
                 type: string;
                 label: string;
                 elements: {
                     type: string;
                     elements: ({
                         type: string;
-                        scope: string;
-                        elements?: undefined;
-                        label?: undefined;
-                    } | {
-                        type: string;
-                        elements: {
+                        elements: ({
                             type: string;
                             scope: string;
-                        }[];
-                        scope?: undefined;
+                            rule?: undefined;
+                        } | {
+                            type: string;
+                            scope: string;
+                            rule: {
+                                effect: string;
+                                condition: {
+                                    scope: string;
+                                    schema: {
+                                        const: boolean;
+                                    };
+                                };
+                            };
+                        })[];
                         label?: undefined;
                     } | {
                         type: string;
@@ -327,10 +363,19 @@ declare module "@scom/scom-table/formSchema.ts" {
                                 scope: string;
                             }[];
                         }[];
-                        scope?: undefined;
                     })[];
                 }[];
-            }[];
+            } | {
+                type: string;
+                label: string;
+                elements: {
+                    type: string;
+                    elements: {
+                        type: string;
+                        scope: string;
+                    }[];
+                }[];
+            })[];
         };
     };
 }
