@@ -23,14 +23,14 @@ export const formatNumber = (num: number, options?: { format?: string, decimals?
     return formatNumberByFormat(num, format);
   }
   const absNum = Math.abs(num);
-  if (absNum >= 1000000000) {
-    return FormatUtils.formatNumber((num / 1000000000), {decimalFigures: decimals}) + 'B';
-  }
-  if (absNum >= 1000000) {
-    return FormatUtils.formatNumber((num / 1000000), {decimalFigures: decimals}) + 'M';
-  }
+  // if (absNum >= 1000000000) {
+  //   return FormatUtils.formatNumber((num / 1000000000), {decimalFigures: decimals || 3}) + 'B';
+  // }
+  // if (absNum >= 1000000) {
+  //   return FormatUtils.formatNumber((num / 1000000), {decimalFigures: decimals || 3}) + 'M';
+  // }
   if (absNum >= 1000) {
-    return FormatUtils.formatNumber((num / 1000), {decimalFigures: decimals}) + 'K';
+    return FormatUtils.formatNumber(num, {decimalFigures: decimals, shortScale: true, roundingMethod: 'round'});
   }
   if (absNum < 0.0000001) {
     return FormatUtils.formatNumber(num, {decimalFigures: 0});
@@ -38,12 +38,12 @@ export const formatNumber = (num: number, options?: { format?: string, decimals?
   if (absNum < 0.00001) {
     return FormatUtils.formatNumber(num, {decimalFigures: 6});
   }
-  if (absNum < 0.001) {
+  if (absNum < 0.001 || absNum < 1) {
     return FormatUtils.formatNumber(num, {decimalFigures: 4});
   }
-  if (absNum < 1) {
-    return FormatUtils.formatNumber(num, {decimalFigures: 4});
-  }
+  // if (absNum < 1) {
+  //   return FormatUtils.formatNumber(num, {decimalFigures: 4});
+  // }
   return FormatUtils.formatNumber(num, {decimalFigures: 2});
 }
 
