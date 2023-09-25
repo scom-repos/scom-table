@@ -9,6 +9,8 @@ declare module "@scom/scom-table/global/interfaces.ts" {
             alignContent?: string;
             isHidden?: boolean;
             numberFormat?: string;
+            dateFormat?: string;
+            dateType?: string;
             type?: 'normal' | 'progressbar';
             coloredPositiveValues?: boolean;
             coloredNegativeValues?: boolean;
@@ -236,6 +238,12 @@ declare module "@scom/scom-table/formSchema.ts" {
                                             enum: string[];
                                         };
                                         numberFormat: {
+                                            type: string;
+                                        };
+                                        dateFormat: {
+                                            type: string;
+                                        };
+                                        dateType: {
                                             type: string;
                                         };
                                         isHidden: {

@@ -18,6 +18,7 @@ import {
   observable,
   Button,
   IUISchema,
+  moment,
   FormatUtils
 } from '@ijstech/components';
 import { ITableConfig, formatNumberByFormat, ITableOptions, isNumeric } from './global/index';
@@ -458,7 +459,7 @@ export default class ScomTable extends Module {
       let cols = [];
       const _columns = columns.filter(v => !v.isHidden);
       for (const column of _columns) {
-        const { name, title, alignContent, type, numberFormat, coloredNegativeValues, coloredPositiveValues } = column;
+        const { name, title, alignContent, type, numberFormat, dateFormat, dateType, coloredNegativeValues, coloredPositiveValues } = column;
         let totalValue = 0;
         if (type === 'progressbar') {
           totalValue = this.tableData.reduce((acc, cur) => {
@@ -490,7 +491,7 @@ export default class ScomTable extends Module {
               });
             }
             const lb = new Label(hStack, {
-              caption: isNumber && numberFormat ? formatNumberByFormat(data, numberFormat, true) :
+              caption: dateFormat ? moment(data, dateType).format(dateFormat) : isNumber && numberFormat ? formatNumberByFormat(data, numberFormat, true) :
                 isNumber ? FormatUtils.formatNumber(data, {decimalFigures: 0}) : data,
               font: {
                 size: '12px'

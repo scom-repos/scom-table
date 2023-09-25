@@ -8,6 +8,8 @@ export interface ITableOptions {
     alignContent?: string,
     isHidden?: boolean,
     numberFormat?: string,
+    dateFormat?: string,
+    dateType?: string,
     type?: 'normal' | 'progressbar',
     coloredPositiveValues?: boolean,
     coloredNegativeValues?: boolean

@@ -60,13 +60,13 @@ define("@scom/scom-table/global/utils.ts", ["require", "exports", "@ijstech/eth-
         }
         const absNum = Math.abs(num);
         if (absNum >= 1000000000) {
-            return components_1.FormatUtils.formatNumber((num / 1000000000), { decimalFigures: decimals || 3 }) + 'B';
+            return components_1.FormatUtils.formatNumber((num / 1000000000), { decimalFigures: decimals }) + 'B';
         }
         if (absNum >= 1000000) {
-            return components_1.FormatUtils.formatNumber((num / 1000000), { decimalFigures: decimals || 3 }) + 'M';
+            return components_1.FormatUtils.formatNumber((num / 1000000), { decimalFigures: decimals }) + 'M';
         }
         if (absNum >= 1000) {
-            return components_1.FormatUtils.formatNumber((num / 1000), { decimalFigures: decimals || 3 }) + 'K';
+            return components_1.FormatUtils.formatNumber((num / 1000), { decimalFigures: decimals }) + 'K';
         }
         if (absNum < 0.0000001) {
             return components_1.FormatUtils.formatNumber(num, { decimalFigures: 0 });
@@ -311,6 +311,12 @@ define("@scom/scom-table/formSchema.ts", ["require", "exports"], function (requi
                                 ]
                             },
                             numberFormat: {
+                                type: 'string'
+                            },
+                            dateFormat: {
+                                type: 'string'
+                            },
+                            dateType: {
                                 type: 'string'
                             },
                             isHidden: {
@@ -1067,7 +1073,7 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
                 let cols = [];
                 const _columns = columns.filter(v => !v.isHidden);
                 for (const column of _columns) {
-                    const { name, title, alignContent, type, numberFormat, coloredNegativeValues, coloredPositiveValues } = column;
+                    const { name, title, alignContent, type, numberFormat, dateFormat, dateType, coloredNegativeValues, coloredPositiveValues } = column;
                     let totalValue = 0;
                     if (type === 'progressbar') {
                         totalValue = this.tableData.reduce((acc, cur) => {
@@ -1099,7 +1105,7 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
                                 });
                             }
                             const lb = new components_5.Label(hStack, {
-                                caption: isNumber && numberFormat ? (0, index_1.formatNumberByFormat)(data, numberFormat, true) :
+                                caption: dateFormat ? (0, components_5.moment)(data, dateType).format(dateFormat) : isNumber && numberFormat ? (0, index_1.formatNumberByFormat)(data, numberFormat, true) :
                                     isNumber ? components_5.FormatUtils.formatNumber(data, { decimalFigures: 0 }) : data,
                                 font: {
                                     size: '12px'
