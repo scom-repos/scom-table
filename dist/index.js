@@ -59,14 +59,14 @@ define("@scom/scom-table/global/utils.ts", ["require", "exports", "@ijstech/eth-
             return (0, exports.formatNumberByFormat)(num, format);
         }
         const absNum = Math.abs(num);
-        if (absNum >= 1000000000) {
-            return components_1.FormatUtils.formatNumber((num / 1000000000), { decimalFigures: decimals || 3 }) + 'B';
-        }
-        if (absNum >= 1000000) {
-            return components_1.FormatUtils.formatNumber((num / 1000000), { decimalFigures: decimals || 3 }) + 'M';
-        }
+        // if (absNum >= 1000000000) {
+        //   return FormatUtils.formatNumber((num / 1000000000), {decimalFigures: decimals || 3}) + 'B';
+        // }
+        // if (absNum >= 1000000) {
+        //   return FormatUtils.formatNumber((num / 1000000), {decimalFigures: decimals || 3}) + 'M';
+        // }
         if (absNum >= 1000) {
-            return components_1.FormatUtils.formatNumber((num / 1000), { decimalFigures: decimals || 3 }) + 'K';
+            return components_1.FormatUtils.formatNumber(num, { decimalFigures: decimals || 3, shortScale: true, roundingMethod: 'round' });
         }
         if (absNum < 0.0000001) {
             return components_1.FormatUtils.formatNumber(num, { decimalFigures: 0 });
@@ -74,12 +74,12 @@ define("@scom/scom-table/global/utils.ts", ["require", "exports", "@ijstech/eth-
         if (absNum < 0.00001) {
             return components_1.FormatUtils.formatNumber(num, { decimalFigures: 6 });
         }
-        if (absNum < 0.001) {
+        if (absNum < 0.001 || absNum < 1) {
             return components_1.FormatUtils.formatNumber(num, { decimalFigures: 4 });
         }
-        if (absNum < 1) {
-            return components_1.FormatUtils.formatNumber(num, { decimalFigures: 4 });
-        }
+        // if (absNum < 1) {
+        //   return FormatUtils.formatNumber(num, {decimalFigures: 4});
+        // }
         return components_1.FormatUtils.formatNumber(num, { decimalFigures: 2 });
     };
     exports.formatNumber = formatNumber;
