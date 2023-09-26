@@ -35,6 +35,12 @@ function visualizationOptions(columns: string[]) {
                         numberFormat: {
                             type: 'string'
                         },
+                        dateFormat: {
+                            type: 'string'
+                        },
+                        dateType: {
+                            type: 'string'
+                        },
                         isHidden: {
                             type: 'boolean'
                         }
