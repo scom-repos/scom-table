@@ -29,8 +29,31 @@ function visualizationOptions(columns: string[]) {
                             type: 'string',
                             enum: [
                                 'normal',
-                                'progressbar'
+                                'progressbar',
+                                'action'
                             ]
+                        },
+                        buttons: {
+                            type: 'array',
+                            items: {
+                                type: 'object',
+                                properties: {
+                                    caption: {
+                                        type: 'string'
+                                    },
+                                    colorType: {
+                                        type: 'string',
+                                        enum: [
+                                            'primary',
+                                            'success',
+                                            'danger',
+                                            'warning',
+                                            'secondary',
+                                            'info'
+                                        ]
+                                    }
+                                }
+                            }
                         },
                         numberFormat: {
                             type: 'string'

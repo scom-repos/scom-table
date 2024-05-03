@@ -10,7 +10,8 @@ export interface ITableOptions {
     numberFormat?: string,
     dateFormat?: string,
     dateType?: string,
-    type?: 'normal' | 'progressbar',
+    buttons?: any[],
+    type?: 'normal' | 'progressbar' | 'action',
     coloredPositiveValues?: boolean,
     coloredNegativeValues?: boolean
   }[]
