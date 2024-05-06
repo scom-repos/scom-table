@@ -64,7 +64,7 @@ export default class ScomTableDataOptionsForm extends Module {
         }
         this.formEl.renderForm()
         this.formEl.clearFormData()
-        this.formEl.setFormData(this._data)
+        this.formEl.setFormData(JSON.parse(JSON.stringify(this._data)))
 
         const inputs = this.formEl.querySelectorAll('[scope]')
         for (let input of inputs) {
