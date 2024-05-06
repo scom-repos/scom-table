@@ -19,7 +19,8 @@ import {
   Button,
   IUISchema,
   moment,
-  FormatUtils
+  FormatUtils,
+  Modal
 } from '@ijstech/components';
 import { ITableConfig, formatNumberByFormat, ITableOptions, isNumeric } from './global/index';
 import { containerStyle, tableStyle, textStyle } from './index.css';
@@ -28,6 +29,7 @@ import dataJson from './data.json';
 import ScomChartDataSourceSetup, { ModeType, fetchContentByCID, callAPI, DataSource } from '@scom/scom-chart-data-source-setup';
 import { getBuilderSchema, getEmbedderSchema } from './formSchema';
 import ScomTableDataOptionsForm from './dataOptionsForm';
+import types from './dts/index';
 const Theme = Styles.Theme.ThemeVars;
 const currentTheme = Styles.Theme.currentTheme;
 
@@ -55,9 +57,21 @@ const DefaultData: ITableConfig = {
   mode: ModeType.LIVE
 };
 
+interface ICustomWidget {
+  showConfigurator: (parent: Modal, prop: string) => void;
+  register: () => { types: string; defaultData: ITableConfig };
+}
+
 @customModule
-@customElements('i-scom-table')
-export default class ScomTable extends Module {
+@customElements('i-scom-table', {
+  icon: 'table',
+  className: 'ScomTable',
+  props: {
+    data: {type: 'object'}
+  },
+  events: {}
+})
+export default class ScomTable extends Module implements ICustomWidget {
   private vStackTable: VStack;
   private vStackInfo: HStack;
   private hStackFooter: HStack;
@@ -92,6 +106,30 @@ export default class ScomTable extends Module {
     super(parent, options);
   }
 
+  showConfigurator(parent: Modal, prop: string) {
+    const props = this._getDesignPropValue('data');
+    const builderTarget = this.getConfigurators().find((conf: any) => conf.target === 'Builders');
+    const dataAction = builderTarget?.getActions().find((action: any) => action.name === prop);
+    const self = this;
+    if (dataAction) {
+      const control = dataAction.customUI.render(props, (result: boolean, data: any) => {
+        parent.visible = false;
+        self.onConfigSave(data);
+      })
+      parent.item = control;
+      parent.visible = true;
+    }
+  }
+
+  private onConfigSave(data: ITableConfig) {
+    this._setDesignPropValue('data', data);
+    this.setData({...data});
+  }
+
+  register() {
+    return { types, defaultData: dataJson.defaultBuilderData as ITableConfig };
+  }
+
   private getData() {
     return this._data;
   }
@@ -124,8 +162,12 @@ export default class ScomTable extends Module {
         this.tag[prop] = newValue[prop];
       }
     }
-    this.width = this.tag.width || 700;
-    this.height = this.tag.height || 500;
+    if (this.tag?.height !== undefined) {
+      this.height = this.tag.height;
+    }
+    if (this.tag?.width !== undefined) {
+      this.width = this.tag.width;
+    }
     this.onUpdateBlock();
   }
 
@@ -228,7 +270,8 @@ export default class ScomTable extends Module {
               caption: 'Confirm',
               width: 'auto',
               height: 40,
-              font: { color: Theme.colors.primary.contrastText }
+              font: { color: Theme.colors.primary.contrastText },
+              padding: {top: '0.5rem', bottom: '0.5rem', left: '1rem', right: '1rem'},
             });
             hstackBtnConfirm.append(button);
             vstack.append(dataSourceSetup);
@@ -352,7 +395,7 @@ export default class ScomTable extends Module {
   }
 
   private get dataListFiltered() {
-    const searchVal = this.inputSearch?.value.toLowerCase();
+    const searchVal = (this.inputSearch?.value || '').toLowerCase();
     if (searchVal) {
       const cols = this._data?.options?.columns.filter(v => !v.isHidden);
       return this.tableData.filter(v => {
@@ -399,6 +442,7 @@ export default class ScomTable extends Module {
 
   private async updateTableData() {
     if (this.inputSearch) {
+      if (!this.inputSearch.isConnected) await this.inputSearch.ready();
       this.inputSearch.value = '';
     }
     this.loadingElm.visible = true;
@@ -451,7 +495,7 @@ export default class ScomTable extends Module {
   }
 
   private renderTable(resize?: boolean) {
-    if (!this.tableElm && this._data?.options) return;
+    if ((!this.tableElm && this._data.options) || !this._data.options) return;
     const { title, description } = this._data;
     const { columns } = this._data?.options || {};
     this.lbTitle.caption = title;
@@ -474,7 +518,7 @@ export default class ScomTable extends Module {
           }, 0);
         }
         const col = {
-          title: title || columns[name]?.title || name,
+          title: title || columns[name]?.title || '',
           fieldName: name,
           textAlign: alignContent,
           onRenderCell: function (source: Control, data: any, rowData: any) {
@@ -485,23 +529,38 @@ export default class ScomTable extends Module {
               wrap: type === 'progressbar' ? undefined : 'wrap',
               verticalAlignment: 'center'
             });
-            if (type === 'progressbar') {
-              new Progress(hStack, {
-                width: 60,
-                height: 8,
-                strokeWidth: 8,
-                strokeColor: Theme.colors.info.main,
-                percent: (data / totalValue) * 100
-              });
-            }
-            const lb = new Label(hStack, {
-              caption: dateFormat ? moment(data, dateType).format(dateFormat) : isNumber && numberFormat ? formatNumberByFormat(data, numberFormat, true) :
-                isNumber ? FormatUtils.formatNumber(data, {decimalFigures: 0}) : data,
-              font: {
-                size: '12px'
+            if (type === 'action') {
+              const actions = column?.buttons || [];
+              for (const action of actions) {
+                const colorType = action.colorType ?? 'primary';
+                new Button(hStack, {
+                  caption: action.caption,
+                  padding: { top: '0.4375rem', bottom: '0.4375rem', left: '0.625rem', right: '0.625rem' },
+                  border: { radius: '0.5rem' },
+                  font: { weight: 500, color: Theme.colors[colorType].contrastText, size: '0.875rem', transform: 'capitalize' },
+                  boxShadow: 'none',
+                  background: { color: Theme.colors[colorType].main }
+                });
               }
-            });
-            lb.classList.add(textStyle);
+            } else {
+              if (type === 'progressbar') {
+                new Progress(hStack, {
+                  width: 60,
+                  height: 8,
+                  strokeWidth: 8,
+                  strokeColor: Theme.colors.info.main,
+                  percent: (data / totalValue) * 100
+                });
+              }
+              const lb = new Label(hStack, {
+                caption: dateFormat ? moment(data, dateType).format(dateFormat) : isNumber && numberFormat ? formatNumberByFormat(data, numberFormat, true) :
+                  isNumber ? FormatUtils.formatNumber(data, {decimalFigures: 0}) : data,
+                font: {
+                  size: '12px'
+                }
+              });
+              lb.classList.add(textStyle);
+            }
             return hStack;
           }
         }
@@ -515,7 +574,7 @@ export default class ScomTable extends Module {
       this.lbTotal.caption = `${this.tableData.length} ${this.tableData.length === 1 ? 'row' : 'rows'}`;
       this.updateTableUI();
     }
-    this.tableElm.height = `${this.pnlTable.offsetHeight - (this.hStackFooter.offsetHeight + 20)}px`;
+    // this.tableElm.height = `${this.pnlTable.offsetHeight - (this.hStackFooter.offsetHeight + 20)}px`;
   }
 
   private updateTableUI() {
@@ -536,12 +595,11 @@ export default class ScomTable extends Module {
     this.updateTableUI();
   }
 
-  private resizeTable() {
+  resize() {
     this.renderTable(true);
   }
 
   async init() {
-    this.isReadyCallbackQueued = true;
     super.init();
     this.classList.add(tableStyle);
     this.updateTheme();
@@ -553,7 +611,7 @@ export default class ScomTable extends Module {
       paginationActiveFontColor: currentTheme.colors.secondary.contrastText,
       headerBackgroundColor: currentTheme.colors.info.light || '#ffeceb',
       headerFontColor: currentTheme.colors.info.contrastText,
-      height: 500,
+      width: '100%',
       boxShadow: false
     })
     this.maxWidth = '100%';
@@ -565,15 +623,10 @@ export default class ScomTable extends Module {
         this.setData(data);
       }
     }
-    const data = this.getAttribute('data', true);
-    if (data) {
-      this.setData(data);
-    }
-    this.isReadyCallbackQueued = false;
     this.executeReadyCallback();
     window.addEventListener('resize', () => {
       setTimeout(() => {
-        this.resizeTable();
+        this.resize();
       }, 300);
     });
   }
