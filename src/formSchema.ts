@@ -30,16 +30,18 @@ function visualizationOptions(columns: string[]) {
                             enum: [
                                 'normal',
                                 'progressbar',
-                                'action'
+                                'action',
+                                'truncate'
                             ]
                         },
-                        buttons: {
+                        actions: {
                             type: 'array',
                             items: {
                                 type: 'object',
                                 properties: {
                                     caption: {
-                                        type: 'string'
+                                        type: 'string',
+                                        default: ''
                                     },
                                     colorType: {
                                         type: 'string',
@@ -50,7 +52,8 @@ function visualizationOptions(columns: string[]) {
                                             'warning',
                                             'secondary',
                                             'info'
-                                        ]
+                                        ],
+                                        default: 'primary'
                                     }
                                 }
                             }

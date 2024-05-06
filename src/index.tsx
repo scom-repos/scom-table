@@ -20,9 +20,11 @@ import {
   IUISchema,
   moment,
   FormatUtils,
-  Modal
+  Modal,
+  Icon,
+  application
 } from '@ijstech/components';
-import { ITableConfig, formatNumberByFormat, ITableOptions, isNumeric } from './global/index';
+import { ITableConfig, formatNumberByFormat, isNumeric } from './global/index';
 import { containerStyle, tableStyle, textStyle } from './index.css';
 import assets from './assets';
 import dataJson from './data.json';
@@ -57,8 +59,9 @@ const DefaultData: ITableConfig = {
   mode: ModeType.LIVE
 };
 
+type onConfigChanged = (prop: string, value: any, mediaQueryProp?: string) => void;
 interface ICustomWidget {
-  showConfigurator: (parent: Modal, prop: string) => void;
+  showConfigurator: (parent: Modal, prop: string, onChanged: onConfigChanged) => void;
   register: () => { types: string; defaultData: ITableConfig };
 }
 
@@ -106,7 +109,7 @@ export default class ScomTable extends Module implements ICustomWidget {
     super(parent, options);
   }
 
-  showConfigurator(parent: Modal, prop: string) {
+  showConfigurator(parent: Modal, prop: string, onChanged: onConfigChanged) {
     const props = this._getDesignPropValue('data');
     const builderTarget = this.getConfigurators().find((conf: any) => conf.target === 'Builders');
     const dataAction = builderTarget?.getActions().find((action: any) => action.name === prop);
@@ -114,7 +117,10 @@ export default class ScomTable extends Module implements ICustomWidget {
     if (dataAction) {
       const control = dataAction.customUI.render(props, (result: boolean, data: any) => {
         parent.visible = false;
-        self.onConfigSave(data);
+        if (result) {
+          self.onConfigSave(data);
+          if (typeof onChanged === 'function') onChanged('data', data);
+        }
       })
       parent.item = control;
       parent.visible = true;
@@ -122,7 +128,6 @@ export default class ScomTable extends Module implements ICustomWidget {
   }
 
   private onConfigSave(data: ITableConfig) {
-    this._setDesignPropValue('data', data);
     this.setData({...data});
   }
 
@@ -445,6 +450,13 @@ export default class ScomTable extends Module implements ICustomWidget {
       if (!this.inputSearch.isConnected) await this.inputSearch.ready();
       this.inputSearch.value = '';
     }
+    const columns = this._data?.options?.columns || [];
+    this.columnNames = [...columns].map(v => v.name);
+    if (this.designMode) {
+      this.tableData = [];
+      this.onUpdateBlock();
+      return;
+    }
     this.loadingElm.visible = true;
     if (this._data?.mode === ModeType.SNAPSHOT)
       await this.renderSnapshotData();
@@ -494,20 +506,23 @@ export default class ScomTable extends Module implements ICustomWidget {
     this.onUpdateBlock();
   }
 
-  private renderTable(resize?: boolean) {
+  private async renderTable(resize?: boolean) {
     if ((!this.tableElm && this._data.options) || !this._data.options) return;
-    const { title, description } = this._data;
+    const { title = '', description = '' } = this._data;
     const { columns } = this._data?.options || {};
+    if (!this.lbTitle.isConnected) await this.lbTitle.ready();
     this.lbTitle.caption = title;
+    if (!this.lbDescription.isConnected) await this.lbDescription.ready();
     this.lbDescription.caption = description;
     this.lbDescription.visible = !!description;
     this.pnlTable.height = `calc(100% - ${this.vStackInfo.offsetHeight + 10}px)`;
     if (!columns?.length) return;
     if (!resize) {
       let cols = [];
+      let self = this;
       const _columns = columns.filter(v => !v.isHidden);
       for (const column of _columns) {
-        const { name, title, alignContent, type, numberFormat, dateFormat, dateType, coloredNegativeValues, coloredPositiveValues } = column;
+        const { name, title, alignContent, type, numberFormat, dateFormat, dateType, actions = [], coloredNegativeValues, coloredPositiveValues } = column;
         let totalValue = 0;
         if (type === 'progressbar') {
           totalValue = this.tableData.reduce((acc, cur) => {
@@ -530,7 +545,6 @@ export default class ScomTable extends Module implements ICustomWidget {
               verticalAlignment: 'center'
             });
             if (type === 'action') {
-              const actions = column?.buttons || [];
               for (const action of actions) {
                 const colorType = action.colorType ?? 'primary';
                 new Button(hStack, {
@@ -552,14 +566,31 @@ export default class ScomTable extends Module implements ICustomWidget {
                   percent: (data / totalValue) * 100
                 });
               }
+
+              let caption = '';
+              const hasTruncate = type === 'truncate' && (data || '').length > 6;
+              if (hasTruncate) {
+                caption = FormatUtils.truncateWalletAddress(data);
+              } else {
+                caption = dateFormat ? moment(data, dateType).format(dateFormat) : isNumber && numberFormat ? formatNumberByFormat(data, numberFormat, true) :
+                  isNumber ? FormatUtils.formatNumber(data, {decimalFigures: 0}) : (data ?? '--');
+              }
+
               const lb = new Label(hStack, {
-                caption: dateFormat ? moment(data, dateType).format(dateFormat) : isNumber && numberFormat ? formatNumberByFormat(data, numberFormat, true) :
-                  isNumber ? FormatUtils.formatNumber(data, {decimalFigures: 0}) : data,
-                font: {
-                  size: '12px'
-                }
-              });
+                font: {size: '0.75rem'},
+                caption
+              })
               lb.classList.add(textStyle);
+              if (hasTruncate) {
+                new Icon(hStack, {
+                  height: '1.5rem',
+                  width: '1.5rem',
+                  padding: { top: '0.25rem', bottom: '0.25rem', left: '0.25rem', right: '0.25rem' },
+                  name: 'copy',
+                  cursor: 'pointer',
+                  onClick: (target: Icon) => self.copyText(target, data)
+                });
+              }
             }
             return hStack;
           }
@@ -577,10 +608,20 @@ export default class ScomTable extends Module implements ICustomWidget {
     // this.tableElm.height = `${this.pnlTable.offsetHeight - (this.hStackFooter.offsetHeight + 20)}px`;
   }
 
+  private copyText(target: Icon, value: string) {
+    application.copyToClipboard(value || "");
+    target.name = "check-circle";
+    target.fill = Theme.colors.success.main;
+    setTimeout(() => {
+      target.name = 'copy';
+      target.fill = Theme.text.primary;
+    }, 1600)
+  }
+
   private updateTableUI() {
     this.totalPage = Math.ceil(this.dataListFiltered.length / pageSize);
     this.paginationElm.visible = this.totalPage > 1;
-    this.tableElm.data = this.dataListPagination;
+    if (this.tableElm) this.tableElm.data = this.dataListPagination;
   }
 
   private onSelectIndex() {
@@ -609,8 +650,8 @@ export default class ScomTable extends Module implements ICustomWidget {
       footerFontColor: currentTheme.colors.success.contrastText,
       paginationActiveBackgoundColor: currentTheme.colors.success.dark || '#e47872',
       paginationActiveFontColor: currentTheme.colors.secondary.contrastText,
-      headerBackgroundColor: currentTheme.colors.info.light || '#ffeceb',
-      headerFontColor: currentTheme.colors.info.contrastText,
+      headerBackgroundColor: this.designMode ? 'transparent' : currentTheme.colors.info.light || '#ffeceb',
+      headerFontColor: this.designMode ? currentTheme.text.secondary : currentTheme.colors.info.contrastText,
       width: '100%',
       boxShadow: false
     })
@@ -637,10 +678,9 @@ export default class ScomTable extends Module implements ICustomWidget {
         id="vStackTable"
         position="relative"
         height="100%"
-        padding={{ top: 10, bottom: 10, left: 10, right: 10 }}
         class={containerStyle}
       >
-        <i-vstack id="loadingElm" class="i-loading-overlay">
+        <i-vstack id="loadingElm" class="i-loading-overlay" visible={false}>
           <i-vstack class="i-loading-spinner" horizontalAlignment="center" verticalAlignment="center">
             <i-icon
               class="i-loading-spinner_icon"
@@ -652,7 +692,6 @@ export default class ScomTable extends Module implements ICustomWidget {
           id="vStackInfo"
           width="100%"
           maxWidth="100%"
-          margin={{ left: 'auto', right: 'auto', bottom: 10 }}
           verticalAlignment="center"
         >
           <i-label id="lbTitle" font={{ bold: true }} class={textStyle} />
@@ -678,7 +717,7 @@ export default class ScomTable extends Module implements ICustomWidget {
                 visible={false}
                 background={{ color: Theme.colors.success.light }}
                 placeholder="Search"
-                width={168}
+                width={168} height={'auto'}
                 padding={{ top: 4, bottom: 4, right: 8, left: 8 }}
                 font={{ size: '12px', color: Theme.colors.success.contrastText }}
                 onChanged={this.onSearch}
