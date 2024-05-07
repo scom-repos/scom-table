@@ -37,9 +37,12 @@ const currentTheme = Styles.Theme.currentTheme;
 
 const pageSize = 25;
 
+type renderCallback = (fieldName: string, data: any) => any;
+
 interface ScomTableElement extends ControlElement {
   lazyLoad?: boolean;
-  data: ITableConfig
+  data: ITableConfig;
+  onCellRender?: renderCallback;
 }
 
 declare global {
@@ -72,7 +75,12 @@ interface ICustomWidget {
   props: {
     data: {type: 'object'}
   },
-  events: {}
+  events: {
+    onCellRender: [
+      {name: 'fieldName', type: 'string'},
+      {name: 'data', type: 'any'}
+    ]
+  }
 })
 export default class ScomTable extends Module implements ICustomWidget {
   private vStackTable: VStack;
@@ -94,10 +102,11 @@ export default class ScomTable extends Module implements ICustomWidget {
   private pageNumber = 0;
   private itemStart = 0;
   private itemEnd = pageSize;
+  private totalRowCount = 0;
 
   private _data: ITableConfig = DefaultData;
   tag: any = {};
-  defaultEdit: boolean = true;
+  onCellRender: renderCallback;
 
   static async create(options?: ScomTableElement, parent?: Container) {
     let self = new this(parent, options);
@@ -141,7 +150,10 @@ export default class ScomTable extends Module implements ICustomWidget {
 
   private async setData(data: ITableConfig) {
     this._data = data;
-    this.updateTableData();
+    this.loadingElm.visible = true;
+    await this.updateTableData();
+    await this.onUpdateBlock();
+    this.loadingElm.visible = false;
   }
 
   private getTag() {
@@ -436,12 +448,12 @@ export default class ScomTable extends Module implements ICustomWidget {
     this.updateStyle('--colors-success-contrast_text', tags.footerFontColor);
     this.updateStyle('--colors-success-dark', tags.paginationActiveBackgoundColor || '#e47872');
     this.updateStyle('--colors-secondary-contrast_text', tags.paginationActiveFontColor);
-    this.updateStyle('--colors-info-light', tags.headerBackgroundColor || '#ffeceb');
-    this.updateStyle('--colors-info-contrast_text', tags.headerFontColor);
+    this.updateStyle('--colors-info-light', tags.headerBackgroundColor || (this.designMode ? 'transparent' : '#ffeceb'));
+    this.updateStyle('--colors-info-contrast_text', tags.headerFontColor || (this.designMode ? currentTheme.text.secondary : currentTheme.colors.info.contrastText));
   }
 
-  private onUpdateBlock() {
-    this.renderTable();
+  private async onUpdateBlock() {
+    await this.renderTable();
     this.updateTheme();
   }
 
@@ -457,12 +469,10 @@ export default class ScomTable extends Module implements ICustomWidget {
       this.onUpdateBlock();
       return;
     }
-    this.loadingElm.visible = true;
     if (this._data?.mode === ModeType.SNAPSHOT)
       await this.renderSnapshotData();
     else
       await this.renderLiveData();
-    this.loadingElm.visible = false;
   }
 
   private async renderSnapshotData() {
@@ -471,16 +481,16 @@ export default class ScomTable extends Module implements ICustomWidget {
         const data = await fetchContentByCID(this._data.file.cid);
         if (data) {
           const { metadata, rows } = data;
-          this.tableData = rows;
+          this.tableData = rows || [];
+          this.totalRowCount = this.tableData.length;
           this.columnNames = metadata?.column_names || [];
-          this.onUpdateBlock();
           return;
         }
       } catch { }
     }
     this.tableData = [];
     this.columnNames = [];
-    this.onUpdateBlock();
+    this.totalRowCount = 0;
   }
 
   private async renderLiveData() {
@@ -496,14 +506,35 @@ export default class ScomTable extends Module implements ICustomWidget {
           const { metadata, rows } = data;
           this.tableData = rows;
           this.columnNames = metadata?.column_names || [];
-          this.onUpdateBlock();
+          this.totalRowCount = metadata?.total_row_count || 0;
           return;
         }
       } catch { }
     }
     this.tableData = [];
     this.columnNames = [];
-    this.onUpdateBlock();
+    this.totalRowCount = 0;
+  }
+
+  private async fetchPaginatedData() {
+    const dataSource = this._data.dataSource as DataSource;
+    let result = [];
+    this.totalRowCount = 0;
+    if (dataSource) {
+      try {
+        const data = await callAPI({
+          dataSource,
+          queryId: this._data.queryId,
+          apiEndpoint: this._data.apiEndpoint,
+          limit: this._data?.options?.fixedRowCount,
+          offset: this.pageNumber - 1
+        });
+        const { metadata, rows } = data;
+        result = rows || [];
+        this.totalRowCount = metadata?.total_row_count || 0;
+      } catch {}
+    }
+    return result;
   }
 
   private async renderTable(resize?: boolean) {
@@ -533,10 +564,15 @@ export default class ScomTable extends Module implements ICustomWidget {
           }, 0);
         }
         const col = {
-          title: title || columns[name]?.title || '',
+          title: title || '',
           fieldName: name,
           textAlign: alignContent,
           onRenderCell: function (source: Control, data: any, rowData: any) {
+            let result = null;
+            if (typeof self.onCellRender === 'function' && !self.designMode) {
+              result = self.onCellRender(name, data);
+              if (result) return result;
+            }
             const isNumber = isNumeric(data);
             const hStack = new HStack(undefined, {
               width: '100%',
@@ -563,7 +599,7 @@ export default class ScomTable extends Module implements ICustomWidget {
                   height: 8,
                   strokeWidth: 8,
                   strokeColor: Theme.colors.info.main,
-                  percent: (data / totalValue) * 100
+                  percent: totalValue ? (data / totalValue) * 100 : 0
                 });
               }
 
@@ -599,13 +635,11 @@ export default class ScomTable extends Module implements ICustomWidget {
       }
       this.tableElm.columns = cols;
       this.pageNumber = 1;
-      const hasData = !!this.tableData.length;
-      this.lbTotal.visible = hasData;
-      this.inputSearch.visible = hasData;
-      this.lbTotal.caption = `${this.tableData.length} ${this.tableData.length === 1 ? 'row' : 'rows'}`;
       this.updateTableUI();
     }
-    // this.tableElm.height = `${this.pnlTable.offsetHeight - (this.hStackFooter.offsetHeight + 20)}px`;
+    if (!this.designMode) {
+      this.tableElm.height = `${this.pnlTable.offsetHeight - (this.hStackFooter.offsetHeight + 20)}px`;
+    }
   }
 
   private copyText(target: Icon, value: string) {
@@ -618,16 +652,32 @@ export default class ScomTable extends Module implements ICustomWidget {
     }, 1600)
   }
 
-  private updateTableUI() {
-    this.totalPage = Math.ceil(this.dataListFiltered.length / pageSize);
+  private async updateTableUI() {
+    const { options, mode } = this._data || {};
+    const fixedRowCount = options?.fixedRowCount;
+    if (fixedRowCount && mode !== ModeType.SNAPSHOT) {
+      this.loadingElm.visible = true;
+      if (this.tableElm) this.tableElm.data = await this.fetchPaginatedData();
+      this.totalPage = Math.ceil(this.totalRowCount / fixedRowCount);
+      this.loadingElm.visible = false;
+    } else {
+      this.totalPage = Math.ceil(this.dataListFiltered.length / pageSize);
+      if (this.tableElm) this.tableElm.data = this.dataListPagination;
+    }
+    const hasData = this.totalRowCount > 0;
+    if (!this.lbTotal.isConnected) await this.lbTotal.ready();
+    this.lbTotal.visible = hasData;
+    this.inputSearch.visible = hasData;
+    this.lbTotal.caption = `${this.totalRowCount} ${this.totalRowCount === 1 ? 'row' : 'rows'}`;
     this.paginationElm.visible = this.totalPage > 1;
-    if (this.tableElm) this.tableElm.data = this.dataListPagination;
   }
 
   private onSelectIndex() {
     this.pageNumber = this.paginationElm.currentPage;
-    this.itemStart = (this.pageNumber - 1) * pageSize;
-    this.itemEnd = this.itemStart + pageSize;
+    if (!this._data?.options?.fixedRowCount) {
+      this.itemStart = (this.pageNumber - 1) * pageSize;
+      this.itemEnd = this.itemStart + pageSize;
+    }
     this.updateTableUI();
   }
 
@@ -643,6 +693,7 @@ export default class ScomTable extends Module implements ICustomWidget {
   async init() {
     super.init();
     this.classList.add(tableStyle);
+    this.onCellRender = this.getAttribute('onCellRender', true) || this.onCellRender;
     this.updateTheme();
     this.setTag({
       progressBackgroundColor: currentTheme.colors.info.main,
@@ -680,7 +731,7 @@ export default class ScomTable extends Module implements ICustomWidget {
         height="100%"
         class={containerStyle}
       >
-        <i-vstack id="loadingElm" class="i-loading-overlay" visible={false}>
+        <i-vstack id="loadingElm" class="i-loading-overlay" minHeight={100}>
           <i-vstack class="i-loading-spinner" horizontalAlignment="center" verticalAlignment="center">
             <i-icon
               class="i-loading-spinner_icon"
