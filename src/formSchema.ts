@@ -72,6 +72,10 @@ function visualizationOptions(columns: string[]) {
                         }
                     }
                 }
+            },
+            fixedRowCount: {
+                type: 'number',
+                title: 'Row count',
             }
         }
     }
@@ -313,6 +317,15 @@ export function getBuilderSchema(columns: string[]) {
             uiSchema: {
                 type: 'VerticalLayout',
                 elements: [
+                    {
+                        type: "HorizontalLayout",
+                        elements: [
+                            {
+                                type: "Control",
+                                scope: '#/properties/options/properties/fixedRowCount'
+                            }
+                        ]
+                    },
                     {
                         type: "HorizontalLayout",
                         elements: [

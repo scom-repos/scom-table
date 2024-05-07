@@ -14,7 +14,8 @@ export interface ITableOptions {
     type?: 'normal' | 'progressbar' | 'action' | 'truncate',
     coloredPositiveValues?: boolean,
     coloredNegativeValues?: boolean
-  }[]
+  }[];
+  fixedRowCount?: number;
 }
 
 export interface ITableConfig {
