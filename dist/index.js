@@ -18,17 +18,6 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __rest = (this && this.__rest) || function (s, e) {
-    var t = {};
-    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
-        t[p] = s[p];
-    if (s != null && typeof Object.getOwnPropertySymbols === "function")
-        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
-            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
-                t[p[i]] = s[p[i]];
-        }
-    return t;
-};
 define("@scom/scom-table/global/interfaces.ts", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -510,11 +499,15 @@ define("@scom/scom-table/formSchema.ts", ["require", "exports"], function (requi
             dataSchema: {
                 type: 'object',
                 required: ['title'],
-                properties: Object.assign({ title: {
+                properties: {
+                    title: {
                         type: 'string'
-                    }, description: {
+                    },
+                    description: {
                         type: 'string'
-                    } }, theme)
+                    },
+                    ...theme
+                }
             },
             uiSchema: {
                 type: 'Categorization',
@@ -585,11 +578,15 @@ define("@scom/scom-table/formSchema.ts", ["require", "exports"], function (requi
             dataSchema: {
                 type: 'object',
                 required: ['title'],
-                properties: Object.assign({ title: {
+                properties: {
+                    title: {
                         type: 'string'
-                    }, description: {
+                    },
+                    description: {
                         type: 'string'
-                    } }, theme)
+                    },
+                    ...theme
+                }
             },
             uiSchema: {
                 type: 'Categorization',
@@ -1340,7 +1337,7 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
         showConfigurator(parent, prop, onChanged) {
             const props = this._getDesignPropValue('data');
             const builderTarget = this.getConfigurators().find((conf) => conf.target === 'Builders');
-            const dataAction = builderTarget === null || builderTarget === void 0 ? void 0 : builderTarget.getActions().find((action) => action.name === prop);
+            const dataAction = builderTarget?.getActions().find((action) => action.name === prop);
             const self = this;
             if (dataAction) {
                 const control = dataAction.customUI.render(props, (result, data) => {
@@ -1356,7 +1353,7 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
             }
         }
         onConfigSave(data) {
-            this.setData(Object.assign({}, data));
+            this.setData({ ...data });
         }
         register() {
             return { types: index_2.default, defaultData: data_json_1.default.defaultBuilderData };
@@ -1375,7 +1372,6 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
             return this.tag;
         }
         async setTag(value, fromParent) {
-            var _a, _b;
             if (fromParent) {
                 this.tag.parentFontColor = value.fontColor;
                 this.tag.parentCustomFontColor = value.customFontColor;
@@ -1394,10 +1390,10 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
                     this.tag[prop] = newValue[prop];
                 }
             }
-            if (((_a = this.tag) === null || _a === void 0 ? void 0 : _a.height) !== undefined) {
+            if (this.tag?.height !== undefined) {
                 this.height = this.tag.height;
             }
-            if (((_b = this.tag) === null || _b === void 0 ? void 0 : _b.width) !== undefined) {
+            if (this.tag?.width !== undefined) {
                 this.width = this.tag.width;
             }
             this.onUpdateBlock();
@@ -1414,36 +1410,36 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
                         return {
                             execute: async () => {
                                 oldData = JSON.parse(JSON.stringify(this._data));
-                                const { title, description } = userInputData, themeSettings = __rest(userInputData, ["title", "description"]);
+                                const { title, description, ...themeSettings } = userInputData;
                                 const generalSettings = {
                                     title,
                                     description,
                                 };
                                 if (generalSettings) {
                                     if (advancedSchema) {
-                                        this._data = Object.assign(Object.assign({}, this._data), generalSettings);
+                                        this._data = { ...this._data, ...generalSettings };
                                     }
                                     else {
-                                        this._data = Object.assign({}, generalSettings);
+                                        this._data = { ...generalSettings };
                                     }
                                 }
-                                if (builder === null || builder === void 0 ? void 0 : builder.setData)
+                                if (builder?.setData)
                                     builder.setData(this._data);
                                 this.setData(this._data);
                                 oldTag = JSON.parse(JSON.stringify(this.tag));
-                                if (builder === null || builder === void 0 ? void 0 : builder.setTag)
+                                if (builder?.setTag)
                                     builder.setTag(themeSettings);
                                 else
                                     this.setTag(themeSettings);
                             },
                             undo: () => {
                                 if (advancedSchema)
-                                    oldData = Object.assign(Object.assign({}, oldData), { options: this._data.options });
-                                if (builder === null || builder === void 0 ? void 0 : builder.setData)
+                                    oldData = { ...oldData, options: this._data.options };
+                                if (builder?.setData)
                                     builder.setData(oldData);
                                 this.setData(oldData);
                                 this.tag = JSON.parse(JSON.stringify(oldTag));
-                                if (builder === null || builder === void 0 ? void 0 : builder.setTag)
+                                if (builder?.setTag)
                                     builder.setTag(this.tag);
                                 else
                                     this.setTag(this.tag);
@@ -1461,25 +1457,25 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
                         let _oldData = DefaultData;
                         return {
                             execute: async () => {
-                                _oldData = Object.assign({}, this._data);
-                                if (userInputData === null || userInputData === void 0 ? void 0 : userInputData.mode)
-                                    this._data.mode = userInputData === null || userInputData === void 0 ? void 0 : userInputData.mode;
-                                if (userInputData === null || userInputData === void 0 ? void 0 : userInputData.file)
-                                    this._data.file = userInputData === null || userInputData === void 0 ? void 0 : userInputData.file;
-                                if (userInputData === null || userInputData === void 0 ? void 0 : userInputData.dataSource)
-                                    this._data.dataSource = userInputData === null || userInputData === void 0 ? void 0 : userInputData.dataSource;
-                                if (userInputData === null || userInputData === void 0 ? void 0 : userInputData.queryId)
-                                    this._data.queryId = userInputData === null || userInputData === void 0 ? void 0 : userInputData.queryId;
-                                if (userInputData === null || userInputData === void 0 ? void 0 : userInputData.apiEndpoint)
-                                    this._data.apiEndpoint = userInputData === null || userInputData === void 0 ? void 0 : userInputData.apiEndpoint;
-                                if ((userInputData === null || userInputData === void 0 ? void 0 : userInputData.options) !== undefined)
+                                _oldData = { ...this._data };
+                                if (userInputData?.mode)
+                                    this._data.mode = userInputData?.mode;
+                                if (userInputData?.file)
+                                    this._data.file = userInputData?.file;
+                                if (userInputData?.dataSource)
+                                    this._data.dataSource = userInputData?.dataSource;
+                                if (userInputData?.queryId)
+                                    this._data.queryId = userInputData?.queryId;
+                                if (userInputData?.apiEndpoint)
+                                    this._data.apiEndpoint = userInputData?.apiEndpoint;
+                                if (userInputData?.options !== undefined)
                                     this._data.options = userInputData.options;
-                                if (builder === null || builder === void 0 ? void 0 : builder.setData)
+                                if (builder?.setData)
                                     builder.setData(this._data);
                                 this.setData(this._data);
                             },
                             undo: () => {
-                                if (builder === null || builder === void 0 ? void 0 : builder.setData)
+                                if (builder?.setData)
                                     builder.setData(_oldData);
                                 this.setData(_oldData);
                             },
@@ -1489,11 +1485,18 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
                     customUI: {
                         render: (data, onConfirm, onChange) => {
                             const vstack = new components_5.VStack(null, { gap: '1rem' });
-                            const dataSourceSetup = new scom_chart_data_source_setup_1.default(null, Object.assign(Object.assign({}, this._data), { chartData: JSON.stringify(this.tableData), onCustomDataChanged: async (dataSourceSetupData) => {
+                            const dataSourceSetup = new scom_chart_data_source_setup_1.default(null, {
+                                ...this._data,
+                                chartData: JSON.stringify(this.tableData),
+                                onCustomDataChanged: async (dataSourceSetupData) => {
                                     if (onChange) {
-                                        onChange(true, Object.assign(Object.assign({}, this._data), dataSourceSetupData));
+                                        onChange(true, {
+                                            ...this._data,
+                                            ...dataSourceSetupData
+                                        });
                                     }
-                                } }));
+                                }
+                            });
                             const hstackBtnConfirm = new components_5.HStack(null, {
                                 verticalAlignment: 'center',
                                 horizontalAlignment: 'end'
@@ -1516,18 +1519,26 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
                             vstack.append(hstackBtnConfirm);
                             if (onChange) {
                                 dataOptionsForm.onCustomInputChanged = async (optionsFormData) => {
-                                    onChange(true, Object.assign(Object.assign(Object.assign({}, this._data), optionsFormData), dataSourceSetup.data));
+                                    onChange(true, {
+                                        ...this._data,
+                                        ...optionsFormData,
+                                        ...dataSourceSetup.data
+                                    });
                                 };
                             }
                             button.onClick = async () => {
                                 const { dataSource, file, mode } = dataSourceSetup.data;
                                 if (mode === scom_chart_data_source_setup_1.ModeType.LIVE && !dataSource)
                                     return;
-                                if (mode === scom_chart_data_source_setup_1.ModeType.SNAPSHOT && !(file === null || file === void 0 ? void 0 : file.cid))
+                                if (mode === scom_chart_data_source_setup_1.ModeType.SNAPSHOT && !file?.cid)
                                     return;
                                 if (onConfirm) {
                                     const optionsFormData = await dataOptionsForm.refreshFormData();
-                                    onConfirm(true, Object.assign(Object.assign(Object.assign({}, this._data), optionsFormData), dataSourceSetup.data));
+                                    onConfirm(true, {
+                                        ...this._data,
+                                        ...optionsFormData,
+                                        ...dataSourceSetup.data
+                                    });
                                 }
                             };
                             return vstack;
@@ -1579,7 +1590,7 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
                     getData: this.getData.bind(this),
                     setData: async (data) => {
                         const defaultData = data_json_1.default.defaultBuilderData;
-                        await this.setData(Object.assign(Object.assign({}, defaultData), data));
+                        await this.setData({ ...defaultData, ...data });
                     },
                     getTag: this.getTag.bind(this),
                     setTag: this.setTag.bind(this)
@@ -1604,7 +1615,10 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
                             const utf8String = decodeURIComponent(params.data);
                             const decodedString = window.atob(utf8String);
                             const newData = JSON.parse(decodedString);
-                            let resultingData = Object.assign(Object.assign({}, self._data), newData);
+                            let resultingData = {
+                                ...self._data,
+                                ...newData
+                            };
                             await this.setData(resultingData);
                         }
                     },
@@ -1616,14 +1630,13 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
             ];
         }
         get dataListFiltered() {
-            var _a, _b, _c;
-            const searchVal = (((_a = this.inputSearch) === null || _a === void 0 ? void 0 : _a.value) || '').toLowerCase();
+            const searchVal = (this.inputSearch?.value || '').toLowerCase();
             if (searchVal) {
-                const cols = (_c = (_b = this._data) === null || _b === void 0 ? void 0 : _b.options) === null || _c === void 0 ? void 0 : _c.columns.filter(v => !v.isHidden);
+                const cols = this._data?.options?.columns.filter(v => !v.isHidden);
                 return this.tableData.filter(v => {
                     for (const col of cols) {
                         const val = v[col.name];
-                        if (val === null || val === void 0 ? void 0 : val.toString().toLowerCase().includes(searchVal)) {
+                        if (val?.toString().toLowerCase().includes(searchVal)) {
                             return true;
                         }
                     }
@@ -1639,9 +1652,8 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
             value ? this.style.setProperty(name, value) : this.style.removeProperty(name);
         }
         updateTheme() {
-            var _a;
             if (this.vStackTable) {
-                this.vStackTable.style.boxShadow = ((_a = this.tag) === null || _a === void 0 ? void 0 : _a.darkShadow) ? '0 -2px 10px rgba(0, 0, 0, 1)' : 'rgba(0, 0, 0, 0.16) 0px 1px 4px';
+                this.vStackTable.style.boxShadow = this.tag?.darkShadow ? '0 -2px 10px rgba(0, 0, 0, 1)' : 'rgba(0, 0, 0, 0.16) 0px 1px 4px';
             }
             const tags = this.tag || {};
             this.updateStyle('--custom-text-color', tags.customFontColor ? tags.fontColor : tags.customWidgetsColor ? tags.widgetsColor : tags.parentCustomFontColor ? tags.parentFontColor : '');
@@ -1659,38 +1671,36 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
             this.updateTheme();
         }
         async updateTableData() {
-            var _a, _b, _c;
             if (this.inputSearch) {
                 if (!this.inputSearch.isConnected)
                     await this.inputSearch.ready();
                 this.inputSearch.value = '';
             }
-            const columns = ((_b = (_a = this._data) === null || _a === void 0 ? void 0 : _a.options) === null || _b === void 0 ? void 0 : _b.columns) || [];
+            const columns = this._data?.options?.columns || [];
             this.columnNames = [...columns].map(v => v.name);
             if (this.designMode) {
                 this.tableData = [];
                 this.onUpdateBlock();
                 return;
             }
-            if (((_c = this._data) === null || _c === void 0 ? void 0 : _c.mode) === scom_chart_data_source_setup_1.ModeType.SNAPSHOT)
+            if (this._data?.mode === scom_chart_data_source_setup_1.ModeType.SNAPSHOT)
                 await this.renderSnapshotData();
             else
                 await this.renderLiveData();
         }
         async renderSnapshotData() {
-            var _a;
-            if ((_a = this._data.file) === null || _a === void 0 ? void 0 : _a.cid) {
+            if (this._data.file?.cid) {
                 try {
                     const data = await (0, scom_chart_data_source_setup_1.fetchContentByCID)(this._data.file.cid);
                     if (data) {
                         const { metadata, rows } = data;
                         this.tableData = rows || [];
                         this.totalRowCount = this.tableData.length;
-                        this.columnNames = (metadata === null || metadata === void 0 ? void 0 : metadata.column_names) || [];
+                        this.columnNames = metadata?.column_names || [];
                         return;
                     }
                 }
-                catch (_b) { }
+                catch { }
             }
             this.tableData = [];
             this.columnNames = [];
@@ -1708,19 +1718,18 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
                     if (data) {
                         const { metadata, rows } = data;
                         this.tableData = rows;
-                        this.columnNames = (metadata === null || metadata === void 0 ? void 0 : metadata.column_names) || [];
-                        this.totalRowCount = (metadata === null || metadata === void 0 ? void 0 : metadata.total_row_count) || 0;
+                        this.columnNames = metadata?.column_names || [];
+                        this.totalRowCount = metadata?.total_row_count || 0;
                         return;
                     }
                 }
-                catch (_a) { }
+                catch { }
             }
             this.tableData = [];
             this.columnNames = [];
             this.totalRowCount = 0;
         }
         async fetchPaginatedData() {
-            var _a, _b;
             const dataSource = this._data.dataSource;
             let result = [];
             this.totalRowCount = 0;
@@ -1730,23 +1739,22 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
                         dataSource,
                         queryId: this._data.queryId,
                         apiEndpoint: this._data.apiEndpoint,
-                        limit: (_b = (_a = this._data) === null || _a === void 0 ? void 0 : _a.options) === null || _b === void 0 ? void 0 : _b.fixedRowCount,
+                        limit: this._data?.options?.fixedRowCount,
                         offset: this.pageNumber - 1
                     });
                     const { metadata, rows } = data;
                     result = rows || [];
-                    this.totalRowCount = (metadata === null || metadata === void 0 ? void 0 : metadata.total_row_count) || 0;
+                    this.totalRowCount = metadata?.total_row_count || 0;
                 }
-                catch (_c) { }
+                catch { }
             }
             return result;
         }
         async renderTable(resize) {
-            var _a;
             if ((!this.tableElm && this._data.options) || !this._data.options)
                 return;
             const { title = '', description = '' } = this._data;
-            const { columns } = ((_a = this._data) === null || _a === void 0 ? void 0 : _a.options) || {};
+            const { columns } = this._data?.options || {};
             if (!this.lbTitle.isConnected)
                 await this.lbTitle.ready();
             this.lbTitle.caption = title;
@@ -1755,7 +1763,7 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
             this.lbDescription.caption = description;
             this.lbDescription.visible = !!description;
             this.pnlTable.height = `calc(100% - ${this.vStackInfo.offsetHeight + 10}px)`;
-            if (!(columns === null || columns === void 0 ? void 0 : columns.length))
+            if (!columns?.length)
                 return;
             if (!resize) {
                 let cols = [];
@@ -1777,7 +1785,6 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
                         fieldName: name,
                         textAlign: alignContent,
                         onRenderCell: function (source, data, rowData) {
-                            var _a;
                             let result = null;
                             if (typeof self.onCellRender === 'function' && !self.designMode) {
                                 result = self.onCellRender(name, data);
@@ -1793,7 +1800,7 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
                             });
                             if (type === 'action') {
                                 for (const action of actions) {
-                                    const colorType = (_a = action.colorType) !== null && _a !== void 0 ? _a : 'primary';
+                                    const colorType = action.colorType ?? 'primary';
                                     new components_5.Button(hStack, {
                                         caption: action.caption,
                                         padding: { top: '0.4375rem', bottom: '0.4375rem', left: '0.625rem', right: '0.625rem' },
@@ -1821,7 +1828,7 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
                                 }
                                 else {
                                     caption = dateFormat ? (0, components_5.moment)(data, dateType).format(dateFormat) : isNumber && numberFormat ? (0, index_1.formatNumberByFormat)(data, numberFormat, true) :
-                                        isNumber ? components_5.FormatUtils.formatNumber(data, { decimalFigures: 0 }) : (data !== null && data !== void 0 ? data : '--');
+                                        isNumber ? components_5.FormatUtils.formatNumber(data, { decimalFigures: 0 }) : (data ?? '--');
                                 }
                                 const lb = new components_5.Label(hStack, {
                                     font: { size: '0.75rem' },
@@ -1863,7 +1870,7 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
         }
         async updateTableUI() {
             const { options, mode } = this._data || {};
-            const fixedRowCount = options === null || options === void 0 ? void 0 : options.fixedRowCount;
+            const fixedRowCount = options?.fixedRowCount;
             if (fixedRowCount && mode !== scom_chart_data_source_setup_1.ModeType.SNAPSHOT) {
                 this.loadingElm.visible = true;
                 if (this.tableElm)
@@ -1885,9 +1892,8 @@ define("@scom/scom-table", ["require", "exports", "@ijstech/components", "@scom/
             this.paginationElm.visible = this.totalPage > 1;
         }
         onSelectIndex() {
-            var _a, _b;
             this.pageNumber = this.paginationElm.currentPage;
-            if (!((_b = (_a = this._data) === null || _a === void 0 ? void 0 : _a.options) === null || _b === void 0 ? void 0 : _b.fixedRowCount)) {
+            if (!this._data?.options?.fixedRowCount) {
                 this.itemStart = (this.pageNumber - 1) * pageSize;
                 this.itemEnd = this.itemStart + pageSize;
             }
